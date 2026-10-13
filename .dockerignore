@@ -1,0 +1,39 @@
+# Legacy PHP applications (not part of the Nuxt 3 rewrite image)
+aps2018
+estat
+monev
+monitoring_sipp
+porsi
+
+# Database dumps & documentation
+*.sql
+sipppaju.sql
+plan.md
+ONBOARDING.md
+CLAUDE.md
+
+# Dependencies & build outputs
+**/node_modules
+**/.output
+**/.nuxt
+dist
+
+# Environment files & secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Git, IDE, and tools
+.git
+.gitignore
+.vscode
+.idea
+.claude
+
+# Logs and OS files
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db

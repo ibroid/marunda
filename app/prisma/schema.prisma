@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model sys_config {
+  id    Int     @id @default(autoincrement())
+  name  String? @db.VarChar(50)
+  value String? @db.Text
+
+  @@map("sys_config")
+}
+
+model perkara {
+  perkara_id            BigInt    @id
+  nomor_perkara         String?   @db.VarChar(100)
+  nomor_urut            Int?
+  jenis_perkara_id      Int?
+  jenis_perkara_nama    String?   @db.VarChar(100)
+  tanggal_pendaftaran   DateTime? @db.Date
+  alur_perkara_id       Int?
+  prodeo                Int?      @default(0)
+  para_pihak            String?   @db.Text
+  proses_terakhir_id    Int?
+  proses_terakhir_text  String?   @db.VarChar(255)
+  tahapan_terakhir_id   Int?
+  tahapan_terakhir_text String?   @db.VarChar(255)
+
+  @@map("perkara")
+}
+
+model perkara_putusan {
+  perkara_id         BigInt    @id
+  tanggal_putusan    DateTime? @db.Date
+  tanggal_minutasi   DateTime? @db.Date
+  putusan_verstek    String?   @db.VarChar(1)
+  amar_putusan       String?   @db.Text
+  amar_putusan_dok   String?   @db.VarChar(255)
+  amar_putusan_anonim String?  @db.VarChar(255)
+  status_putusan_id  Int?
+
+  @@map("perkara_putusan")
+}

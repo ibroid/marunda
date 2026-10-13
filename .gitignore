@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Nuxt 3 & Nitro Build Output
+.nuxt/
+.output/
+.nitro/
+.cache/
+dist/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Database Dumps & Local Databases
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+sipppaju.sql
+
+# IDE & Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# Claude / Assistant local files
+.claude/
+!.claude/settings.json
+
+# Legacy PHP applications (not part of the repository)
+aps2018/
+estat/
+monev/
+monitoring_sipp/
+porsi/
+
+# Logs
+logs/
+*.log
