@@ -281,6 +281,75 @@
           <div class="border-t border-gray-200 dark:border-gray-700"></div>
         </div>
 
+        <!-- Sub Menu Statistik Geografi -->
+        <!-- Mode Collapsed (Mini): Gunakan Dropdown Popup -->
+        <div v-if="effectiveCollapsed">
+          <UDropdown
+            :items="geografiDropdownItems"
+            :popper="{ placement: 'right-start' }"
+            class="w-full"
+          >
+            <UTooltip text="Statistik Geografi" :popper="{ placement: 'right' }" class="w-full">
+              <button
+                type="button"
+                class="w-full flex items-center justify-center p-2.5 rounded-lg text-sm font-medium transition-colors"
+                :class="[
+                  isGeografiRoute
+                    ? 'bg-primary-50 text-primary-800 dark:bg-primary-950 dark:text-primary-300 ring-1 ring-primary-500/20'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                ]"
+              >
+                <UIcon name="i-heroicons-map" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
+              </button>
+            </UTooltip>
+          </UDropdown>
+        </div>
+
+        <!-- Mode Extended (Full): Accordion Biasa -->
+        <div v-else class="space-y-1">
+          <button
+            type="button"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            :class="[
+              isGeografiRoute
+                ? 'bg-primary-50/70 text-primary-800 dark:bg-primary-950/70 dark:text-primary-300'
+                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+            ]"
+            @click="isGeografiOpen = !isGeografiOpen"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="i-heroicons-map" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
+              <span class="truncate">Statistik Geografi</span>
+            </div>
+            <UIcon
+              :name="isGeografiOpen ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'"
+              class="w-4 h-4 text-gray-400 transition-transform shrink-0"
+            />
+          </button>
+
+          <!-- Submenu Items -->
+          <div v-show="isGeografiOpen" class="pl-3 pr-1 py-1 space-y-1 border-l-2 border-primary-200 dark:border-primary-900 ml-4">
+            <NuxtLink
+              v-for="sub in geografiSubItems"
+              :key="sub.to"
+              :to="sub.to"
+              class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              :class="[
+                $route.path === sub.to
+                  ? 'bg-primary-100 text-primary-900 font-semibold dark:bg-primary-900 dark:text-primary-100'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/60 dark:hover:text-gray-200'
+              ]"
+            >
+              <UIcon :name="sub.icon" class="w-4 h-4 shrink-0" />
+              <span class="truncate">{{ sub.label }}</span>
+            </NuxtLink>
+          </div>
+        </div>
+
+        <div class="pt-2 pb-1">
+          <div class="border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+
         <!-- Navigation Links Utama Lainnya -->
         <UTooltip
           v-for="item in navItems"
@@ -638,6 +707,35 @@ const persidanganDropdownItems = computed(() => [
   }))
 ])
 
+// State untuk toggle accordion sub-menu statistik geografi
+const isGeografiOpen = ref(true)
+
+const isGeografiRoute = computed(() => {
+  return route.path.startsWith('/statistik-geografi')
+})
+
+const geografiSubItems = [
+  {
+    label: 'Data Per Wilayah',
+    to: '/statistik-geografi/wilayah',
+    icon: 'i-heroicons-map-pin'
+  }
+]
+
+const geografiDropdownItems = computed(() => [
+  [
+    {
+      label: 'Statistik Geografi',
+      disabled: true
+    }
+  ],
+  geografiSubItems.map(sub => ({
+    label: sub.label,
+    icon: sub.icon,
+    to: sub.to
+  }))
+])
+
 const navItems = [
   { label: 'Statistik e-Court', to: '/ecourt', icon: 'i-heroicons-globe-alt' },
   { label: 'Raport & Kinerja SIPP', to: '/kinerja', icon: 'i-heroicons-trophy' },
@@ -666,6 +764,7 @@ const currentTitle = computed(() => {
   if (route.path === '/persidangan/jadwal') return 'Jadwal Sidang Pengadilan'
   if (route.path === '/persidangan/sidang-keliling') return 'Jadwal Sidang Keliling Belum Ditentukan'
   if (route.path.startsWith('/persidangan')) return 'Monitoring Persidangan SIPP'
+  if (route.path === '/statistik-geografi/wilayah' || route.path.startsWith('/statistik-geografi')) return 'Statistik Geografi - Data Per Wilayah'
   const match = navItems.find(item => item.to === route.path)
   return match ? match.label : 'Monitoring SIPP'
 })
