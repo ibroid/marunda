@@ -719,6 +719,11 @@ const geografiSubItems = [
     label: 'Data Per Wilayah',
     to: '/statistik-geografi/wilayah',
     icon: 'i-heroicons-map-pin'
+  },
+  {
+    label: 'Jenis Perkara',
+    to: '/statistik-geografi/jenis-perkara',
+    icon: 'i-heroicons-rectangle-stack'
   }
 ]
 
@@ -764,6 +769,7 @@ const currentTitle = computed(() => {
   if (route.path === '/persidangan/jadwal') return 'Jadwal Sidang Pengadilan'
   if (route.path === '/persidangan/sidang-keliling') return 'Jadwal Sidang Keliling Belum Ditentukan'
   if (route.path.startsWith('/persidangan')) return 'Monitoring Persidangan SIPP'
+  if (route.path === '/statistik-geografi/jenis-perkara') return 'Statistik Geografi - Jenis Perkara'
   if (route.path === '/statistik-geografi/wilayah' || route.path.startsWith('/statistik-geografi')) return 'Statistik Geografi - Data Per Wilayah'
   const match = navItems.find(item => item.to === route.path)
   return match ? match.label : 'Monitoring SIPP'
