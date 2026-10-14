@@ -11,17 +11,17 @@
 
     <!-- Real Content -->
     <template v-else>
-      <!-- Total Perkara Jakarta Utara -->
+      <!-- Total Perkara Jakarta Utara & Kepulauan Seribu -->
       <UCard :ui="{ body: { padding: 'p-4' } }">
         <div class="flex items-center justify-between">
-          <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Total Perkara Jakut</p>
+          <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Total Perkara Wilayah</p>
           <UIcon name="i-heroicons-map" class="w-4 h-4 text-emerald-500" />
         </div>
         <p class="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
           {{ formatNumber(data?.summary?.totalPerkara) }}
         </p>
         <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-          {{ data?.summary?.jumlahKecamatan || 6 }} Kecamatan di Jakut
+          {{ data?.summary?.jumlahKecamatan || 8 }} Kecamatan (Jakut & Kep. Seribu)
         </p>
       </UCard>
 

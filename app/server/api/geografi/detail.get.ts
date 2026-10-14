@@ -36,9 +36,16 @@ export default defineEventHandler(async (event) => {
   const safeKec = kecamatan.replace(/['"\\]/g, '')
 
   // Filter pp.urutan = 1 penting untuk mencegah duplikasi perkara permohonan yang memiliki banyak pihak1
+  // Mendukung 6 kecamatan Jakarta Utara (31.72) dan 2 kecamatan Kepulauan Seribu (31.01)
   let conditions = `
-    (rk.kabupaten_kode = '31.72' OR rk.kecamatan_kode LIKE '31.72%')
-    AND (rk.kecamatan_kode = '${safeKec}' OR rk.kecamatan_nama = '${safeKec}')
+    (rk.kabupaten_kode IN ('31.72', '31.01') OR rk.kecamatan_kode LIKE '31.72%' OR rk.kecamatan_kode LIKE '31.01%')
+    AND (
+      rk.kecamatan_kode = '${safeKec}'
+      OR rk.kecamatan_nama = '${safeKec}'
+      OR TRIM(TRAILING '.' FROM rk.kecamatan_nama) = '${safeKec}'
+      OR ph.kecamatan = '${safeKec}'
+      OR ph.kecamatan LIKE CONCAT('%', '${safeKec}', '%')
+    )
     AND p.tanggal_pendaftaran >= '${startDate}'
     AND p.tanggal_pendaftaran <= '${endDate}'
     AND pp.urutan = 1
@@ -67,7 +74,12 @@ export default defineEventHandler(async (event) => {
         FROM perkara p
         JOIN ${tablePihak} pp ON pp.perkara_id = p.perkara_id AND pp.urutan = 1
         JOIN pihak ph ON ph.id = pp.pihak_id
-        JOIN ref_kecamatan_new rk ON (rk.kecamatan_kode = ph.kecamatan OR rk.kecamatan_nama = ph.kecamatan)
+        JOIN ref_kecamatan_new rk ON (
+          rk.kecamatan_kode = ph.kecamatan
+          OR rk.kecamatan_nama = ph.kecamatan
+          OR TRIM(TRAILING '.' FROM rk.kecamatan_nama) = ph.kecamatan
+          OR ph.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+        )
         LEFT JOIN ref_kelurahan_new rkel ON rkel.kelurahan_kode = ph.kelurahan
         WHERE ${conditions}
       `),
@@ -85,12 +97,17 @@ export default defineEventHandler(async (event) => {
           ph.nama AS nama_pihak,
           ph.alamat,
           rk.kecamatan_kode,
-          rk.kecamatan_nama,
+          TRIM(TRAILING '.' FROM rk.kecamatan_nama) AS kecamatan_nama,
           COALESCE(rkel.kelurahan_nama, ph.kelurahan, '-') AS kelurahan_nama
         FROM perkara p
         JOIN ${tablePihak} pp ON pp.perkara_id = p.perkara_id AND pp.urutan = 1
         JOIN pihak ph ON ph.id = pp.pihak_id
-        JOIN ref_kecamatan_new rk ON (rk.kecamatan_kode = ph.kecamatan OR rk.kecamatan_nama = ph.kecamatan)
+        JOIN ref_kecamatan_new rk ON (
+          rk.kecamatan_kode = ph.kecamatan
+          OR rk.kecamatan_nama = ph.kecamatan
+          OR TRIM(TRAILING '.' FROM rk.kecamatan_nama) = ph.kecamatan
+          OR ph.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+        )
         LEFT JOIN ref_kelurahan_new rkel ON rkel.kelurahan_kode = ph.kelurahan
         WHERE ${conditions}
         ORDER BY p.tanggal_pendaftaran DESC, p.perkara_id DESC

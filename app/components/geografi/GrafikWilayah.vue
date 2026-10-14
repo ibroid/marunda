@@ -11,7 +11,7 @@
               Grafik Komparasi Perkara Antar Kecamatan ({{ selectedYear }})
             </h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              Klik pada batang <b>Gugatan (Biru)</b> atau <b>Permohonan (Ungu)</b> untuk memfilter data perkara di tabel
+              Perbandingan beban penerimaan perkara di 8 kecamatan (Jakarta Utara & Kepulauan Seribu)
             </p>
           </div>
         </div>
@@ -56,7 +56,7 @@
 
     <!-- Skeleton Loading -->
     <div v-if="isLoading" class="h-64 flex items-end gap-3 pt-6 pb-2 px-2 border-b border-gray-200 dark:border-gray-700">
-      <div v-for="i in 6" :key="i" class="flex-1 flex flex-col items-center justify-end h-full gap-2">
+      <div v-for="i in 8" :key="i" class="flex-1 flex flex-col items-center justify-end h-full gap-2">
         <USkeleton class="w-full h-40 rounded-t" />
         <USkeleton class="w-12 h-3" />
       </div>

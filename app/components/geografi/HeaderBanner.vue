@@ -5,11 +5,11 @@
         <UBadge color="white" variant="solid" size="xs" class="text-emerald-950 font-bold uppercase tracking-wider">
           Statistik Geografi
         </UBadge>
-        <span class="text-xs text-emerald-200">Kota Administrasi Jakarta Utara</span>
+        <span class="text-xs text-emerald-200">Jakarta Utara & Kepulauan Seribu</span>
       </div>
       <h2 class="text-2xl font-bold tracking-tight">Penerimaan Perkara Per Wilayah</h2>
       <p class="text-sm text-emerald-100 max-w-2xl">
-        {{ namaSatker }} — Pemetaan persebaran penerimaan perkara berdasarkan domisili kecamatan pihak di wilayah hukum Jakarta Utara pada Tahun {{ selectedYear }}.
+        {{ namaSatker }} — Pemetaan persebaran penerimaan perkara berdasarkan domisili kecamatan pihak di wilayah hukum Jakarta Utara dan Kepulauan Seribu pada Tahun {{ selectedYear }}.
       </p>
     </div>
 

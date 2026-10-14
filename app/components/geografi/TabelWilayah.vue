@@ -8,10 +8,10 @@
           </div>
           <div>
             <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
-              Data Penerimaan Perkara Per Kecamatan (Jakarta Utara)
+              Data Penerimaan Perkara Per Kecamatan (Jakarta Utara & Kep. Seribu)
             </h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              Rincian beban penerimaan perkara di 6 kecamatan wilayah Jakarta Utara (klik angka untuk rincian)
+              Rincian beban penerimaan perkara di 8 kecamatan wilayah hukum (klik angka untuk rincian)
             </p>
           </div>
         </div>
@@ -37,7 +37,7 @@
 
     <!-- Skeleton Loading -->
     <div v-if="isLoading" class="p-4 space-y-3">
-      <div v-for="i in 6" :key="i" class="flex items-center gap-4">
+      <div v-for="i in 8" :key="i" class="flex items-center gap-4">
         <USkeleton class="h-5 w-8" />
         <USkeleton class="h-5 w-24" />
         <USkeleton class="h-5 w-32" />
@@ -174,7 +174,7 @@
         <tfoot class="bg-gray-50 dark:bg-gray-800/80 font-bold border-t border-gray-200 dark:border-gray-700">
           <tr>
             <td colspan="3" class="py-3 px-4 text-right text-gray-900 dark:text-white">
-              Total Seluruh Jakarta Utara:
+              Total Seluruh Wilayah Hukum:
             </td>
             <td class="py-3 px-4 text-right text-blue-700 dark:text-blue-300">
               {{ formatNumber(totalGugatanSemua) }}

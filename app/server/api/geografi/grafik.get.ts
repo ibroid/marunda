@@ -14,11 +14,11 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Komparasi per Kecamatan (urutan = 1 agar perkara permohonan dengan banyak pihak tidak duplikat)
-    // Selalu hitung gugatan dan permohonan lengkap agar bar chart dapat diklik secara interaktif
+    // Mencakup 8 kecamatan: 6 di Jakarta Utara (31.72) dan 2 di Kepulauan Seribu (31.01)
     const komparasiRes = await prisma.$queryRawUnsafe<any[]>(`
       SELECT
         rk.kecamatan_kode,
-        rk.kecamatan_nama,
+        TRIM(TRAILING '.' FROM rk.kecamatan_nama) AS kecamatan_nama,
         COUNT(DISTINCT p.perkara_id) AS total_perkara,
         COUNT(DISTINCT CASE WHEN p.alur_perkara_id = 15 THEN p.perkara_id END) AS total_gugatan,
         COUNT(DISTINCT CASE WHEN p.alur_perkara_id = 16 THEN p.perkara_id END) AS total_permohonan
@@ -31,8 +31,13 @@ export default defineEventHandler(async (event) => {
         WHERE pp.urutan = 1
           AND p.tanggal_pendaftaran >= '${startDate}'
           AND p.tanggal_pendaftaran <= '${endDate}'
-      ) p ON (p.kecamatan = rk.kecamatan_kode OR p.kecamatan = rk.kecamatan_nama)
-      WHERE (rk.kabupaten_kode = '31.72' OR rk.kecamatan_kode LIKE '31.72%')
+      ) p ON (
+        p.kecamatan = rk.kecamatan_kode
+        OR p.kecamatan = rk.kecamatan_nama
+        OR p.kecamatan = TRIM(TRAILING '.' FROM rk.kecamatan_nama)
+        OR p.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+      )
+      WHERE (rk.kabupaten_kode IN ('31.72', '31.01') OR rk.kecamatan_kode LIKE '31.72%' OR rk.kecamatan_kode LIKE '31.01%')
       GROUP BY rk.kecamatan_kode, rk.kecamatan_nama
       ORDER BY total_perkara DESC
     `)

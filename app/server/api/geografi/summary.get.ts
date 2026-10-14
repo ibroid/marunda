@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         `SELECT value FROM sys_config WHERE id = 62 OR name = 'NamaPN' LIMIT 1`
       ),
 
-      // 2. Summary Total Se-Jakarta Utara
+      // 2. Summary Total Jakarta Utara & Kepulauan Seribu (8 Kecamatan)
       prisma.$queryRawUnsafe<any[]>(`
         SELECT
           COUNT(DISTINCT p.perkara_id) AS total_perkara,
@@ -37,18 +37,23 @@ export default defineEventHandler(async (event) => {
         FROM perkara p
         JOIN ${tablePihak} pp ON pp.perkara_id = p.perkara_id AND pp.urutan = 1
         JOIN pihak ph ON ph.id = pp.pihak_id
-        JOIN ref_kecamatan_new rk ON (rk.kecamatan_kode = ph.kecamatan OR rk.kecamatan_nama = ph.kecamatan)
-        WHERE (rk.kabupaten_kode = '31.72' OR rk.kecamatan_kode LIKE '31.72%')
+        JOIN ref_kecamatan_new rk ON (
+          rk.kecamatan_kode = ph.kecamatan
+          OR rk.kecamatan_nama = ph.kecamatan
+          OR TRIM(TRAILING '.' FROM rk.kecamatan_nama) = ph.kecamatan
+          OR ph.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+        )
+        WHERE (rk.kabupaten_kode IN ('31.72', '31.01') OR rk.kecamatan_kode LIKE '31.72%' OR rk.kecamatan_kode LIKE '31.01%')
           AND p.tanggal_pendaftaran >= '${startDate}'
           AND p.tanggal_pendaftaran <= '${endDate}'
           ${alurCondition}
       `),
 
-      // 3. Ranking Kecamatan di Jakarta Utara
+      // 3. Ranking Kecamatan di Jakarta Utara & Kepulauan Seribu
       prisma.$queryRawUnsafe<any[]>(`
         SELECT
           rk.kecamatan_kode,
-          rk.kecamatan_nama,
+          TRIM(TRAILING '.' FROM rk.kecamatan_nama) AS kecamatan_nama,
           COUNT(DISTINCT p.perkara_id) AS total
         FROM ref_kecamatan_new rk
         LEFT JOIN (
@@ -60,8 +65,13 @@ export default defineEventHandler(async (event) => {
             AND p.tanggal_pendaftaran >= '${startDate}'
             AND p.tanggal_pendaftaran <= '${endDate}'
             ${alurCondition}
-        ) p ON (p.kecamatan = rk.kecamatan_kode OR p.kecamatan = rk.kecamatan_nama)
-        WHERE (rk.kabupaten_kode = '31.72' OR rk.kecamatan_kode LIKE '31.72%')
+        ) p ON (
+          p.kecamatan = rk.kecamatan_kode
+          OR p.kecamatan = rk.kecamatan_nama
+          OR p.kecamatan = TRIM(TRAILING '.' FROM rk.kecamatan_nama)
+          OR p.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+        )
+        WHERE (rk.kabupaten_kode IN ('31.72', '31.01') OR rk.kecamatan_kode LIKE '31.72%' OR rk.kecamatan_kode LIKE '31.01%')
         GROUP BY rk.kecamatan_kode, rk.kecamatan_nama
         ORDER BY total DESC
       `)

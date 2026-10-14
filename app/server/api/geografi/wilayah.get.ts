@@ -23,10 +23,11 @@ export default defineEventHandler(async (event) => {
   try {
     const [kecamatanRes, kelurahanRes, jenisPerkaraRes] = await Promise.all([
       // 1. Data per Kecamatan (pp.urutan = 1 agar perkara tidak duplikat)
+      // Mencakup 8 kecamatan: Jakarta Utara (31.72) dan Kepulauan Seribu (31.01)
       prisma.$queryRawUnsafe<any[]>(`
         SELECT
           rk.kecamatan_kode,
-          rk.kecamatan_nama,
+          TRIM(TRAILING '.' FROM rk.kecamatan_nama) AS kecamatan_nama,
           COUNT(DISTINCT p.perkara_id) AS total_perkara,
           COUNT(DISTINCT CASE WHEN p.alur_perkara_id = 15 THEN p.perkara_id END) AS total_gugatan,
           COUNT(DISTINCT CASE WHEN p.alur_perkara_id = 16 THEN p.perkara_id END) AS total_permohonan
@@ -40,8 +41,13 @@ export default defineEventHandler(async (event) => {
             AND p.tanggal_pendaftaran >= '${startDate}'
             AND p.tanggal_pendaftaran <= '${endDate}'
             ${alurCondition}
-        ) p ON (p.kecamatan = rk.kecamatan_kode OR p.kecamatan = rk.kecamatan_nama)
-        WHERE (rk.kabupaten_kode = '31.72' OR rk.kecamatan_kode LIKE '31.72%')
+        ) p ON (
+          p.kecamatan = rk.kecamatan_kode
+          OR p.kecamatan = rk.kecamatan_nama
+          OR p.kecamatan = TRIM(TRAILING '.' FROM rk.kecamatan_nama)
+          OR p.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+        )
+        WHERE (rk.kabupaten_kode IN ('31.72', '31.01') OR rk.kecamatan_kode LIKE '31.72%' OR rk.kecamatan_kode LIKE '31.01%')
         GROUP BY rk.kecamatan_kode, rk.kecamatan_nama
         ORDER BY total_perkara DESC
       `),
@@ -54,14 +60,19 @@ export default defineEventHandler(async (event) => {
           COALESCE(rkel.kelurahan_nama, ph.kelurahan, 'Lainnya') AS kelurahan_nama,
           COUNT(DISTINCT p.perkara_id) AS total
         FROM ref_kecamatan_new rk
-        JOIN pihak ph ON (ph.kecamatan = rk.kecamatan_kode OR ph.kecamatan = rk.kecamatan_nama)
+        JOIN pihak ph ON (
+          ph.kecamatan = rk.kecamatan_kode
+          OR ph.kecamatan = rk.kecamatan_nama
+          OR ph.kecamatan = TRIM(TRAILING '.' FROM rk.kecamatan_nama)
+          OR ph.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+        )
         JOIN ${tablePihak} pp ON pp.pihak_id = ph.id AND pp.urutan = 1
         JOIN perkara p ON p.perkara_id = pp.perkara_id
           AND p.tanggal_pendaftaran >= '${startDate}'
           AND p.tanggal_pendaftaran <= '${endDate}'
           ${alurCondition}
         LEFT JOIN ref_kelurahan_new rkel ON rkel.kelurahan_kode = ph.kelurahan
-        WHERE (rk.kabupaten_kode = '31.72' OR rk.kecamatan_kode LIKE '31.72%')
+        WHERE (rk.kabupaten_kode IN ('31.72', '31.01') OR rk.kecamatan_kode LIKE '31.72%' OR rk.kecamatan_kode LIKE '31.01%')
         GROUP BY rk.kecamatan_kode, ph.kelurahan, rkel.kelurahan_nama
         ORDER BY rk.kecamatan_kode ASC, total DESC
       `),
@@ -73,19 +84,24 @@ export default defineEventHandler(async (event) => {
           p.jenis_perkara_nama,
           COUNT(DISTINCT p.perkara_id) AS total
         FROM ref_kecamatan_new rk
-        JOIN pihak ph ON (ph.kecamatan = rk.kecamatan_kode OR ph.kecamatan = rk.kecamatan_nama)
+        JOIN pihak ph ON (
+          ph.kecamatan = rk.kecamatan_kode
+          OR ph.kecamatan = rk.kecamatan_nama
+          OR ph.kecamatan = TRIM(TRAILING '.' FROM rk.kecamatan_nama)
+          OR ph.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
+        )
         JOIN ${tablePihak} pp ON pp.pihak_id = ph.id AND pp.urutan = 1
         JOIN perkara p ON p.perkara_id = pp.perkara_id
           AND p.tanggal_pendaftaran >= '${startDate}'
           AND p.tanggal_pendaftaran <= '${endDate}'
           ${alurCondition}
-        WHERE (rk.kabupaten_kode = '31.72' OR rk.kecamatan_kode LIKE '31.72%')
+        WHERE (rk.kabupaten_kode IN ('31.72', '31.01') OR rk.kecamatan_kode LIKE '31.72%' OR rk.kecamatan_kode LIKE '31.01%')
         GROUP BY rk.kecamatan_kode, p.jenis_perkara_nama
         ORDER BY rk.kecamatan_kode ASC, total DESC
       `)
     ])
 
-    // Hitung total seluruh Jakarta Utara
+    // Hitung total seluruh wilayah yurisdiksi (Jakarta Utara & Kepulauan Seribu)
     const totalSemuaJakut = kecamatanRes.reduce((acc, curr) => acc + Number(curr.total_perkara || 0), 0)
 
     // Petakan kelurahan per kecamatan
@@ -137,6 +153,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       year,
       totalSemuaJakut,
+      totalSemuaWilayah: totalSemuaJakut,
       items
     })
   } catch (error: any) {

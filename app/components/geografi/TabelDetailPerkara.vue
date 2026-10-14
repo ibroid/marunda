@@ -137,7 +137,7 @@
           </p>
         </div>
 
-        <!-- Tombol Cepat Pilihan 6 Kecamatan di Jakarta Utara -->
+        <!-- Tombol Cepat Pilihan 8 Kecamatan di Wilayah Hukum (Jakarta Utara & Kepulauan Seribu) -->
         <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
           <UButton
             v-for="kec in quickKecamatanList"
@@ -326,7 +326,9 @@ const quickKecamatanList = [
   'Tanjung Priok',
   'Penjaringan',
   'Pademangan',
-  'Kelapa Gading'
+  'Kelapa Gading',
+  'Kepulauan Seribu Utara',
+  'Kepulauan Seribu Selatan'
 ]
 
 const kecamatanOptions = [
@@ -336,7 +338,9 @@ const kecamatanOptions = [
   { label: 'Tanjung Priok', value: 'Tanjung Priok' },
   { label: 'Penjaringan', value: 'Penjaringan' },
   { label: 'Pademangan', value: 'Pademangan' },
-  { label: 'Kelapa Gading', value: 'Kelapa Gading' }
+  { label: 'Kelapa Gading', value: 'Kelapa Gading' },
+  { label: 'Kepulauan Seribu Utara', value: 'Kepulauan Seribu Utara' },
+  { label: 'Kepulauan Seribu Selatan', value: 'Kepulauan Seribu Selatan' }
 ]
 
 const alurOptions = [
