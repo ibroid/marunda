@@ -6,7 +6,7 @@ services:
     container_name: sipp-monitoring
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3080}:3000"
     environment:
       - NODE_ENV=production
       - NITRO_HOST=0.0.0.0

@@ -1,12 +1,10 @@
 import { PrismaClient } from '@prisma/client'
-import net from 'net'
 
 // Singleton PrismaClient instance
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
 export const prisma = globalForPrisma.prisma || new PrismaClient()
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+globalForPrisma.prisma = prisma
 
 // Helper untuk serialize BigInt ke string/number agar JSON response tidak error
 export function serializeBigInt<T>(obj: T): T {
@@ -58,56 +56,21 @@ export function parseDbConfig(): DbConfig {
   }
 }
 
-// Cek TCP port cepat (5-10ms) untuk mendeteksi apakah server DB sedang aktif
-function checkTcpPort(host: string, port: number, timeoutMs = 1200): Promise<{ ok: boolean; error?: string }> {
-  return new Promise((resolve) => {
-    const socket = new net.Socket()
-    socket.setTimeout(timeoutMs)
-
-    socket.on('connect', () => {
-      socket.destroy()
-      resolve({ ok: true })
-    })
-
-    socket.on('timeout', () => {
-      socket.destroy()
-      resolve({ ok: false, error: 'Connection timeout' })
-    })
-
-    socket.on('error', (err: any) => {
-      socket.destroy()
-      resolve({ ok: false, error: err.code || err.message })
-    })
-
-    socket.connect(port, host)
-  })
-}
-
-// Cek koneksi database secara menyeluruh (TCP + Prisma query)
-export async function checkDatabaseConnection(timeoutMs = 1500): Promise<DbConnectionStatus> {
+// Cek koneksi database secara menyeluruh via Prisma query dengan timeout
+export async function checkDatabaseConnection(timeoutMs = 3000): Promise<DbConnectionStatus> {
   const config = parseDbConfig()
   const now = new Date().toISOString()
 
-  // 1. Uji koneksi socket TCP terlebih dahulu (cepat & tidak memblokir event loop)
-  const tcpResult = await checkTcpPort(config.host, config.port, timeoutMs)
-  if (!tcpResult.ok) {
-    return {
-      connected: false,
-      isOffline: true,
-      message: `Tidak dapat terhubung ke server database SIPP (${config.host}:${config.port}). Server database sedang offline atau port tidak dapat dijangkau.`,
-      details: tcpResult.error || 'Connection refused',
-      config: {
-        host: config.host,
-        port: config.port,
-        database: config.database
-      },
-      timestamp: now
-    }
-  }
-
-  // 2. Uji query Prisma untuk memastikan database dan kredensial valid
   try {
-    await prisma.$queryRawUnsafe('SELECT 1')
+    let timer: NodeJS.Timeout
+    const queryPromise = prisma.$queryRawUnsafe('SELECT 1')
+    const timeoutPromise = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Connection timeout')), timeoutMs)
+    })
+
+    await Promise.race([queryPromise, timeoutPromise])
+    clearTimeout(timer!)
+
     return {
       connected: true,
       isOffline: false,
