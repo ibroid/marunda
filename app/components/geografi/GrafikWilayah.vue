@@ -11,7 +11,7 @@
               Grafik Komparasi Perkara Antar Kecamatan ({{ selectedYear }})
             </h3>
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              Klik pada batang <b>Gugatan</b> atau <b>Permohonan</b> untuk memfilter rincian perkara di tabel
+              Klik pada batang <b>Gugatan (Biru)</b> atau <b>Permohonan (Ungu)</b> untuk memfilter data perkara di tabel
             </p>
           </div>
         </div>
@@ -19,11 +19,11 @@
         <!-- Legend Warna & Status Filter Aktif -->
         <div class="flex flex-wrap items-center gap-3 text-xs font-medium">
           <span class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" @click="setAlur('15')">
-            <span class="w-3 h-3 rounded-xs bg-indigo-600 inline-block shadow-xs"></span>
+            <span class="w-3 h-3 rounded-xs bg-blue-600 inline-block shadow-xs"></span>
             <span>Gugatan (Pdt.G)</span>
           </span>
           <span class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" @click="setAlur('16')">
-            <span class="w-3 h-3 rounded-xs bg-amber-500 inline-block shadow-xs"></span>
+            <span class="w-3 h-3 rounded-xs bg-purple-600 inline-block shadow-xs"></span>
             <span>Permohonan (Pdt.P)</span>
           </span>
 
@@ -96,11 +96,11 @@
               ]"
               :style="{ height: getBarHeight(data?.komparasi?.total[idx]) }"
             >
-              <!-- 1. Bagian Permohonan (Pdt.P) - Kuning/Amber -->
+              <!-- 1. Bagian Permohonan (Pdt.P) - Warna Ungu (Purple) -->
               <button
                 v-if="data?.komparasi?.permohonan[idx] > 0"
                 type="button"
-                class="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 transition-all cursor-pointer relative group/permohonan flex items-center justify-center text-[10px] font-bold text-white overflow-hidden"
+                class="w-full bg-purple-600 hover:bg-purple-500 active:bg-purple-700 transition-all cursor-pointer relative group/permohonan flex items-center justify-center text-[10px] font-bold text-white overflow-hidden"
                 :class="[
                   isSelected(kecNama, '16')
                     ? 'ring-2 ring-white ring-inset brightness-125 z-10'
@@ -115,7 +115,7 @@
               >
                 <!-- Tooltip Popup Permohonan -->
                 <div class="hidden group-hover/permohonan:block absolute -top-12 bg-gray-900 text-white text-[11px] py-1 px-2.5 rounded shadow-lg z-30 whitespace-nowrap pointer-events-none">
-                  <span class="text-amber-400 font-bold">Permohonan: {{ data?.komparasi?.permohonan[idx] }}</span> (Klik untuk lihat)
+                  <span class="text-purple-300 font-bold">Permohonan: {{ data?.komparasi?.permohonan[idx] }}</span> (Klik untuk lihat)
                 </div>
 
                 <span v-if="getPortionPct(data?.komparasi?.permohonan[idx], data?.komparasi?.total[idx]) >= 18" class="truncate px-0.5 pointer-events-none">
@@ -123,11 +123,11 @@
                 </span>
               </button>
 
-              <!-- 2. Bagian Gugatan (Pdt.G) - Biru/Indigo -->
+              <!-- 2. Bagian Gugatan (Pdt.G) - Warna Biru (Blue) -->
               <button
                 v-if="data?.komparasi?.gugatan[idx] > 0"
                 type="button"
-                class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 transition-all cursor-pointer relative group/gugatan flex items-center justify-center text-[10px] font-bold text-white overflow-hidden"
+                class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition-all cursor-pointer relative group/gugatan flex items-center justify-center text-[10px] font-bold text-white overflow-hidden"
                 :class="[
                   isSelected(kecNama, '15')
                     ? 'ring-2 ring-white ring-inset brightness-125 z-10'
@@ -142,7 +142,7 @@
               >
                 <!-- Tooltip Popup Gugatan -->
                 <div class="hidden group-hover/gugatan:block absolute -top-12 bg-gray-900 text-white text-[11px] py-1 px-2.5 rounded shadow-lg z-30 whitespace-nowrap pointer-events-none">
-                  <span class="text-indigo-300 font-bold">Gugatan: {{ data?.komparasi?.gugatan[idx] }}</span> (Klik untuk lihat)
+                  <span class="text-blue-300 font-bold">Gugatan: {{ data?.komparasi?.gugatan[idx] }}</span> (Klik untuk lihat)
                 </div>
 
                 <span v-if="getPortionPct(data?.komparasi?.gugatan[idx], data?.komparasi?.total[idx]) >= 18" class="truncate px-0.5 pointer-events-none">
@@ -173,11 +173,11 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-2 gap-2">
         <span class="flex items-center gap-1.5">
           <UIcon name="i-heroicons-cursor-arrow-rays" class="w-4 h-4 text-emerald-500 shrink-0" />
-          <span><b>Petunjuk:</b> Klik batang <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Gugatan</span> atau <span class="text-amber-600 dark:text-amber-400 font-semibold">Permohonan</span> pada kecamatan untuk langsung menampilkan perkaranya di tabel bawah.</span>
+          <span><b>Petunjuk:</b> Klik batang <span class="text-blue-600 dark:text-blue-400 font-semibold">Gugatan (Biru)</span> atau <span class="text-purple-600 dark:text-purple-400 font-semibold">Permohonan (Ungu)</span> pada kecamatan untuk langsung menampilkan perkaranya di tabel bawah.</span>
         </span>
         <div class="flex items-center gap-3 shrink-0">
-          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-indigo-600"></span> Gugatan (Pdt.G)</span>
-          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-amber-500"></span> Permohonan (Pdt.P)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-blue-600"></span> Gugatan (Pdt.G)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-purple-600"></span> Permohonan (Pdt.P)</span>
         </div>
       </div>
     </div>

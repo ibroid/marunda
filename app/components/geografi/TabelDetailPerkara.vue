@@ -22,7 +22,7 @@
                 </UBadge>
                 <UBadge
                   v-if="selectedKecamatan && selectedAlurPerkara === '15'"
-                  color="indigo"
+                  color="blue"
                   variant="subtle"
                   size="xs"
                   class="flex items-center gap-1"
@@ -30,7 +30,7 @@
                   <span>Gugatan (Pdt.G)</span>
                   <button
                     type="button"
-                    class="ml-0.5 hover:text-indigo-950 font-bold"
+                    class="ml-0.5 hover:text-blue-950 font-bold"
                     title="Ubah ke Semua Alur"
                     @click="selectedAlurPerkara = 'all'"
                   >
@@ -39,15 +39,15 @@
                 </UBadge>
                 <UBadge
                   v-else-if="selectedKecamatan && selectedAlurPerkara === '16'"
-                  color="amber"
+                  color="purple"
                   variant="subtle"
                   size="xs"
-                  class="flex items-center gap-1"
+                  class="flex items-center gap-1 font-semibold"
                 >
                   <span>Permohonan (Pdt.P)</span>
                   <button
                     type="button"
-                    class="ml-0.5 hover:text-amber-950 font-bold"
+                    class="ml-0.5 hover:text-purple-950 font-bold"
                     title="Ubah ke Semua Alur"
                     @click="selectedAlurPerkara = 'all'"
                   >
@@ -132,8 +132,8 @@
           </h4>
           <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
             Data perkara tidak dimuat sekaligus untuk menjaga performa sistem. Silakan klik batang
-            <span class="font-semibold text-indigo-600 dark:text-indigo-400">Gugatan</span> /
-            <span class="font-semibold text-amber-600 dark:text-amber-400">Permohonan</span> pada grafik di atas, atau pilih salah satu wilayah di bawah:
+            <span class="font-semibold text-blue-600 dark:text-blue-400">Gugatan</span> /
+            <span class="font-semibold text-purple-600 dark:text-purple-400">Permohonan</span> pada grafik di atas, atau pilih salah satu wilayah di bawah:
           </p>
         </div>
 
@@ -207,7 +207,7 @@
               <th class="py-3 px-3 w-10 text-center">No</th>
               <th class="py-3 px-3 w-44">Nomor Perkara</th>
               <th class="py-3 px-3 w-28">Tgl Daftar</th>
-              <th class="py-3 px-3 w-36">Jenis Perkara</th>
+              <th class="py-3 px-3 w-40">Jenis Perkara</th>
               <th class="py-3 px-3">Nama Pihak (Pemohon/Penggugat I)</th>
               <th class="py-3 px-3 w-44">Wilayah (Kelurahan)</th>
               <th class="py-3 px-3">Alamat</th>
@@ -243,12 +243,15 @@
                 {{ formatDate(row.tanggal_pendaftaran) }}
               </td>
               <td class="py-3 px-3 text-xs">
+                <!-- Badge Jenis Perkara: Khusus Permohonan menggunakan warna UNGU (purple), Gugatan menggunakan warna BIRU (blue) -->
                 <UBadge
-                  :color="row.alur_perkara_id === 15 ? 'indigo' : 'amber'"
+                  :color="isPermohonan(row) ? 'purple' : 'blue'"
                   variant="subtle"
                   size="xs"
+                  class="font-medium"
                 >
-                  {{ row.jenis_perkara_nama }}
+                  <span class="font-bold mr-1">{{ isPermohonan(row) ? 'Pdt.P' : 'Pdt.G' }}</span>
+                  <span>• {{ row.jenis_perkara_nama }}</span>
                 </UBadge>
               </td>
               <td class="py-3 px-3 font-semibold text-gray-900 dark:text-white max-w-[200px] truncate" :title="row.nama_pihak">
@@ -282,8 +285,8 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
           <div>
             Menampilkan {{ (currentPage - 1) * pageLimit + 1 }} - {{ Math.min(currentPage * pageLimit, data?.total || 0) }} dari total {{ data?.total || 0 }} perkara di Kecamatan {{ selectedKecamatanNama || selectedKecamatan }}
-            <span v-if="selectedAlurPerkara === '15'" class="font-semibold text-indigo-600 dark:text-indigo-400"> (Gugatan)</span>
-            <span v-else-if="selectedAlurPerkara === '16'" class="font-semibold text-amber-600 dark:text-amber-400"> (Permohonan)</span>
+            <span v-if="selectedAlurPerkara === '15'" class="font-semibold text-blue-600 dark:text-blue-400"> (Gugatan)</span>
+            <span v-else-if="selectedAlurPerkara === '16'" class="font-semibold text-purple-600 dark:text-purple-400"> (Permohonan)</span>
           </div>
           <div v-if="(data?.totalPages || 0) > 1">
             <UPagination
@@ -341,6 +344,15 @@ const alurOptions = [
   { label: 'Gugatan (Pdt.G)', value: '15' },
   { label: 'Permohonan (Pdt.P)', value: '16' }
 ]
+
+// Deteksi akurat apakah perkara adalah Permohonan (Pdt.P - alur 16)
+function isPermohonan(row) {
+  if (!row) return false
+  if (Number(row.alur_perkara_id) === 16 || String(row.alur_perkara_id) === '16') return true
+  if (row.nomor_perkara && String(row.nomor_perkara).includes('/Pdt.P/')) return true
+  if (row.jenis_perkara_nama && String(row.jenis_perkara_nama).toLowerCase().includes('permohonan')) return true
+  return false
+}
 
 function selectQuickKecamatan(kecNama) {
   setKecamatanDanAlur(kecNama, kecNama, selectedAlurPerkara.value || 'all')

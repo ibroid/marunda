@@ -54,8 +54,8 @@
             <th class="py-3 px-4 w-12 text-center">No</th>
             <th class="py-3 px-4 w-28">Kode</th>
             <th class="py-3 px-4">Nama Kecamatan</th>
-            <th class="py-3 px-4 text-right">Gugatan</th>
-            <th class="py-3 px-4 text-right">Permohonan</th>
+            <th class="py-3 px-4 text-right">Gugatan (Biru)</th>
+            <th class="py-3 px-4 text-right">Permohonan (Ungu)</th>
             <th class="py-3 px-4 text-right">Total Perkara</th>
             <th class="py-3 px-4 w-48">Kontribusi Wilayah</th>
             <th class="py-3 px-4">Perkara Dominan</th>
@@ -94,10 +94,10 @@
               <td class="py-3.5 px-4 text-right">
                 <button
                   type="button"
-                  class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline hover:bg-indigo-50 dark:hover:bg-indigo-950/50 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+                  class="text-blue-600 dark:text-blue-400 font-semibold hover:underline hover:bg-blue-50 dark:hover:bg-blue-950/50 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
                   :class="[
                     (selectedKecamatan === item.kode || selectedKecamatan === item.nama) && selectedAlurPerkara === '15'
-                      ? 'ring-1 ring-indigo-500 bg-indigo-50 dark:bg-indigo-950/70 font-bold'
+                      ? 'ring-1 ring-blue-500 bg-blue-50 dark:bg-blue-950/70 font-bold'
                       : ''
                   ]"
                   title="Klik untuk melihat perkara Gugatan"
@@ -109,10 +109,10 @@
               <td class="py-3.5 px-4 text-right">
                 <button
                   type="button"
-                  class="text-amber-600 dark:text-amber-400 font-semibold hover:underline hover:bg-amber-50 dark:hover:bg-amber-950/50 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
+                  class="text-purple-600 dark:text-purple-400 font-semibold hover:underline hover:bg-purple-50 dark:hover:bg-purple-950/50 px-1.5 py-0.5 rounded cursor-pointer transition-colors"
                   :class="[
                     (selectedKecamatan === item.kode || selectedKecamatan === item.nama) && selectedAlurPerkara === '16'
-                      ? 'ring-1 ring-amber-500 bg-amber-50 dark:bg-amber-950/70 font-bold'
+                      ? 'ring-1 ring-purple-500 bg-purple-50 dark:bg-purple-950/70 font-bold'
                       : ''
                   ]"
                   title="Klik untuk melihat perkara Permohonan"
@@ -176,10 +176,10 @@
             <td colspan="3" class="py-3 px-4 text-right text-gray-900 dark:text-white">
               Total Seluruh Jakarta Utara:
             </td>
-            <td class="py-3 px-4 text-right text-indigo-700 dark:text-indigo-300">
+            <td class="py-3 px-4 text-right text-blue-700 dark:text-blue-300">
               {{ formatNumber(totalGugatanSemua) }}
             </td>
-            <td class="py-3 px-4 text-right text-amber-700 dark:text-amber-300">
+            <td class="py-3 px-4 text-right text-purple-700 dark:text-purple-300">
               {{ formatNumber(totalPermohonanSemua) }}
             </td>
             <td class="py-3 px-4 text-right text-emerald-700 dark:text-emerald-300">

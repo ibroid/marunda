@@ -28,10 +28,10 @@
       <!-- Kecamatan Tertinggi -->
       <UCard :ui="{ body: { padding: 'p-4' } }">
         <div class="flex items-center justify-between">
-          <p class="text-xs font-semibold text-blue-600 dark:text-blue-400">Wilayah Tertinggi</p>
-          <UIcon name="i-heroicons-arrow-trending-up" class="w-4 h-4 text-blue-500" />
+          <p class="text-xs font-semibold text-teal-600 dark:text-teal-400">Wilayah Tertinggi</p>
+          <UIcon name="i-heroicons-arrow-trending-up" class="w-4 h-4 text-teal-500" />
         </div>
-        <p class="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1 truncate">
+        <p class="text-2xl font-bold text-teal-700 dark:text-teal-300 mt-1 truncate">
           {{ data?.summary?.kecamatanTertinggi?.nama || '-' }}
         </p>
         <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
@@ -39,13 +39,13 @@
         </p>
       </UCard>
 
-      <!-- Perkara Gugatan -->
+      <!-- Perkara Gugatan (Biru) -->
       <UCard :ui="{ body: { padding: 'p-4' } }">
         <div class="flex items-center justify-between">
-          <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Gugatan (Pdt.G)</p>
-          <UIcon name="i-heroicons-document-duplicate" class="w-4 h-4 text-indigo-500" />
+          <p class="text-xs font-semibold text-blue-600 dark:text-blue-400">Gugatan (Pdt.G)</p>
+          <UIcon name="i-heroicons-document-duplicate" class="w-4 h-4 text-blue-500" />
         </div>
-        <p class="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mt-1">
+        <p class="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1">
           {{ formatNumber(data?.summary?.totalGugatan) }}
         </p>
         <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
@@ -53,13 +53,13 @@
         </p>
       </UCard>
 
-      <!-- Perkara Permohonan -->
+      <!-- Perkara Permohonan (Ungu) -->
       <UCard :ui="{ body: { padding: 'p-4' } }">
         <div class="flex items-center justify-between">
-          <p class="text-xs font-semibold text-amber-600 dark:text-amber-400">Permohonan (Pdt.P)</p>
-          <UIcon name="i-heroicons-document-text" class="w-4 h-4 text-amber-500" />
+          <p class="text-xs font-semibold text-purple-600 dark:text-purple-400">Permohonan (Pdt.P)</p>
+          <UIcon name="i-heroicons-document-text" class="w-4 h-4 text-purple-500" />
         </div>
-        <p class="text-2xl font-bold text-amber-700 dark:text-amber-300 mt-1">
+        <p class="text-2xl font-bold text-purple-700 dark:text-purple-300 mt-1">
           {{ formatNumber(data?.summary?.totalPermohonan) }}
         </p>
         <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
@@ -70,10 +70,10 @@
       <!-- Rata-rata per Kecamatan -->
       <UCard :ui="{ body: { padding: 'p-4' } }">
         <div class="flex items-center justify-between">
-          <p class="text-xs font-semibold text-teal-600 dark:text-teal-400">Rerata Per Wilayah</p>
-          <UIcon name="i-heroicons-calculator" class="w-4 h-4 text-teal-500" />
+          <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Rerata Per Wilayah</p>
+          <UIcon name="i-heroicons-calculator" class="w-4 h-4 text-slate-500" />
         </div>
-        <p class="text-2xl font-bold text-teal-700 dark:text-teal-300 mt-1">
+        <p class="text-2xl font-bold text-slate-700 dark:text-slate-300 mt-1">
           {{ formatNumber(data?.summary?.rataRataPerKecamatan) }}
         </p>
         <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
