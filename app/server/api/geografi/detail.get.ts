@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const year = query.year && !isNaN(Number(query.year)) ? Number(query.year) : currentYear
   const pihakType = (query.pihak_type as string) || 'pihak1'
   const kecamatan = ((query.kecamatan as string) || '').trim()
+  const kelurahan = ((query.kelurahan as string) || '').trim()
   const search = ((query.search as string) || '').trim()
   const alur = (query.alur as string) || 'all'
   const page = Math.max(1, Number(query.page) || 1)
@@ -22,6 +23,7 @@ export default defineEventHandler(async (event) => {
       limit,
       total: 0,
       totalPages: 0,
+      availableKelurahan: [],
       items: [],
       message: 'Pilih kecamatan terlebih dahulu untuk menampilkan data perkara'
     })
@@ -51,10 +53,23 @@ export default defineEventHandler(async (event) => {
     AND pp.urutan = 1
   `
 
+  let alurCondition = ''
   if (alur === '15') {
-    conditions += ' AND p.alur_perkara_id = 15'
+    alurCondition = ' AND p.alur_perkara_id = 15'
+    conditions += alurCondition
   } else if (alur === '16') {
-    conditions += ' AND p.alur_perkara_id = 16'
+    alurCondition = ' AND p.alur_perkara_id = 16'
+    conditions += alurCondition
+  }
+
+  if (kelurahan) {
+    const safeKel = kelurahan.replace(/['"\\]/g, '')
+    conditions += ` AND (
+      rkel.kelurahan_kode = '${safeKel}'
+      OR rkel.kelurahan_nama = '${safeKel}'
+      OR ph.kelurahan = '${safeKel}'
+      OR ph.kelurahan LIKE CONCAT('%', '${safeKel}', '%')
+    )`
   }
 
   if (search) {
@@ -68,7 +83,8 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const [countRes, rows] = await Promise.all([
+    const [countRes, rows, kelurahanList] = await Promise.all([
+      // 1. Total perkara terfilter
       prisma.$queryRawUnsafe<any[]>(`
         SELECT COUNT(DISTINCT p.perkara_id) AS total
         FROM perkara p
@@ -80,10 +96,14 @@ export default defineEventHandler(async (event) => {
           OR TRIM(TRAILING '.' FROM rk.kecamatan_nama) = ph.kecamatan
           OR ph.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
         )
-        LEFT JOIN ref_kelurahan_new rkel ON rkel.kelurahan_kode = ph.kelurahan
+        LEFT JOIN ref_kelurahan_new rkel ON (
+          rkel.kelurahan_kode = ph.kelurahan
+          OR rkel.kelurahan_nama = ph.kelurahan
+        )
         WHERE ${conditions}
       `),
 
+      // 2. Data perkara paginasi
       prisma.$queryRawUnsafe<any[]>(`
         SELECT
           p.perkara_id,
@@ -108,15 +128,50 @@ export default defineEventHandler(async (event) => {
           OR TRIM(TRAILING '.' FROM rk.kecamatan_nama) = ph.kecamatan
           OR ph.kecamatan LIKE CONCAT('%', TRIM(TRAILING '.' FROM rk.kecamatan_nama), '%')
         )
-        LEFT JOIN ref_kelurahan_new rkel ON rkel.kelurahan_kode = ph.kelurahan
+        LEFT JOIN ref_kelurahan_new rkel ON (
+          rkel.kelurahan_kode = ph.kelurahan
+          OR rkel.kelurahan_nama = ph.kelurahan
+        )
         WHERE ${conditions}
         ORDER BY p.tanggal_pendaftaran DESC, p.perkara_id DESC
         LIMIT ${limit} OFFSET ${offset}
+      `),
+
+      // 3. Daftar kelurahan yang berada di bawah kecamatan yang sedang dilihat
+      prisma.$queryRawUnsafe<any[]>(`
+        SELECT
+          rkel.kelurahan_kode,
+          rkel.kelurahan_nama,
+          COUNT(DISTINCT p.perkara_id) AS total
+        FROM ref_kelurahan_new rkel
+        JOIN ref_kecamatan_new rk ON rk.kecamatan_kode = rkel.kecamatan_kode
+        LEFT JOIN pihak ph ON (
+          ph.kelurahan = rkel.kelurahan_kode
+          OR ph.kelurahan = rkel.kelurahan_nama
+        )
+        LEFT JOIN ${tablePihak} pp ON pp.pihak_id = ph.id AND pp.urutan = 1
+        LEFT JOIN perkara p ON p.perkara_id = pp.perkara_id
+          AND p.tanggal_pendaftaran >= '${startDate}'
+          AND p.tanggal_pendaftaran <= '${endDate}'
+          ${alurCondition}
+        WHERE (
+          rk.kecamatan_kode = '${safeKec}'
+          OR rk.kecamatan_nama = '${safeKec}'
+          OR TRIM(TRAILING '.' FROM rk.kecamatan_nama) = '${safeKec}'
+        )
+        GROUP BY rkel.kelurahan_kode, rkel.kelurahan_nama
+        ORDER BY rkel.kelurahan_nama ASC
       `)
     ])
 
     const total = Number(countRes[0]?.total || 0)
     const totalPages = Math.ceil(total / limit)
+
+    const availableKelurahan = (kelurahanList || []).map(k => ({
+      kode: k.kelurahan_kode,
+      nama: k.kelurahan_nama,
+      total: Number(k.total || 0)
+    }))
 
     return serializeBigInt({
       success: true,
@@ -125,6 +180,7 @@ export default defineEventHandler(async (event) => {
       limit,
       total,
       totalPages,
+      availableKelurahan,
       items: rows
     })
   } catch (error: any) {
@@ -136,6 +192,7 @@ export default defineEventHandler(async (event) => {
       limit,
       total: 0,
       totalPages: 0,
+      availableKelurahan: [],
       items: [],
       message: error.message || 'Gagal mengambil data detail perkara wilayah'
     }

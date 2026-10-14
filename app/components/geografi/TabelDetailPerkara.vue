@@ -12,14 +12,34 @@
                 <h3 class="text-sm font-semibold text-gray-900 dark:text-white">
                   Daftar Rincian Penerimaan Perkara
                 </h3>
+                <!-- Badge Kecamatan Terpilih -->
                 <UBadge
                   v-if="selectedKecamatan"
                   color="emerald"
                   variant="subtle"
                   size="xs"
                 >
-                  Wilayah: {{ selectedKecamatanNama || selectedKecamatan }}
+                  Kecamatan: {{ selectedKecamatanNama || selectedKecamatan }}
                 </UBadge>
+                <!-- Badge Kelurahan Terpilih -->
+                <UBadge
+                  v-if="selectedKecamatan && selectedKelurahan"
+                  color="teal"
+                  variant="subtle"
+                  size="xs"
+                  class="flex items-center gap-1 font-semibold"
+                >
+                  <span>Kel. {{ selectedKelurahan }}</span>
+                  <button
+                    type="button"
+                    class="ml-0.5 hover:text-teal-950 font-bold"
+                    title="Hapus Filter Kelurahan"
+                    @click="clearKelurahan"
+                  >
+                    ✕
+                  </button>
+                </UBadge>
+                <!-- Badge Gugatan / Permohonan -->
                 <UBadge
                   v-if="selectedKecamatan && selectedAlurPerkara === '15'"
                   color="blue"
@@ -58,6 +78,7 @@
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                 <span v-if="selectedKecamatan">
                   Menampilkan rincian perkara di Kecamatan {{ selectedKecamatanNama || selectedKecamatan }}
+                  <template v-if="selectedKelurahan"> • Kelurahan {{ selectedKelurahan }}</template>
                   <template v-if="selectedAlurPerkara === '15'"> • Khusus Gugatan (Pdt.G)</template>
                   <template v-else-if="selectedAlurPerkara === '16'"> • Khusus Permohonan (Pdt.P)</template>
                   (Pihak Utama Urutan 1)
@@ -69,21 +90,23 @@
             </div>
           </div>
 
-          <!-- Filter Bar (Tampil jika kecamatan sudah dipilih) -->
-          <div class="flex flex-wrap items-center gap-2.5">
-            <!-- Filter Kecamatan Dropdown -->
-            <USelect
-              v-model="selectedKecamatan"
-              :options="kecamatanOptions"
-              placeholder="Pilih Kecamatan..."
-              size="sm"
-              class="w-44"
-              @change="onKecamatanChange"
-            />
+          <!-- Filter Bar (Hanya tampil jika kecamatan sedang aktif dilihat) -->
+          <div v-if="selectedKecamatan" class="flex flex-wrap items-center gap-2.5">
+            <!-- Filter Kelurahan: menampilkan kelurahan di bawah kecamatan yang sedang dilihat -->
+            <div class="flex items-center gap-1.5">
+              <USelect
+                v-model="selectedKelurahan"
+                :options="kelurahanOptions"
+                placeholder="Semua Kelurahan"
+                size="sm"
+                class="w-48"
+                icon="i-heroicons-map-pin"
+                @change="onKelurahanChange"
+              />
+            </div>
 
             <!-- Filter Alur Perkara (Gugatan / Permohonan) -->
             <USelect
-              v-if="selectedKecamatan"
               v-model="selectedAlurPerkara"
               :options="alurOptions"
               size="sm"
@@ -92,19 +115,17 @@
 
             <!-- Search Input -->
             <UInput
-              v-if="selectedKecamatan"
               v-model="searchQuery"
               icon="i-heroicons-magnifying-glass"
-              placeholder="Cari nomor, pihak, kelurahan..."
+              placeholder="Cari nomor, pihak, alamat..."
               size="sm"
-              class="w-52"
+              class="w-48"
               :trailing="false"
               @keydown.enter="handleSearch"
             />
 
             <!-- Tombol Tutup / Reset Pilihan Kecamatan -->
             <UButton
-              v-if="selectedKecamatan"
               color="gray"
               variant="ghost"
               size="sm"
@@ -173,11 +194,21 @@
         <UIcon name="i-heroicons-inbox" class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500" />
         <p class="text-sm font-medium text-gray-600 dark:text-gray-300">
           Tidak ditemukan data perkara untuk Kecamatan {{ selectedKecamatanNama || selectedKecamatan }}
+          <span v-if="selectedKelurahan" class="font-semibold text-teal-600 dark:text-teal-400"> (Kelurahan {{ selectedKelurahan }})</span>
           <span v-if="selectedAlurPerkara === '15'"> (Jenis Gugatan)</span>
           <span v-else-if="selectedAlurPerkara === '16'"> (Jenis Permohonan)</span>
           <span v-if="searchQuery"> dengan kata kunci "{{ searchQuery }}"</span>
         </p>
-        <div class="flex items-center justify-center gap-2">
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <UButton
+            v-if="selectedKelurahan"
+            color="teal"
+            variant="soft"
+            size="xs"
+            @click="clearKelurahan"
+          >
+            Tampilkan Semua Kelurahan
+          </UButton>
           <UButton
             v-if="selectedAlurPerkara !== 'all'"
             color="gray"
@@ -262,8 +293,9 @@
                   <p class="font-semibold text-xs text-gray-800 dark:text-gray-200">
                     {{ row.kecamatan_nama }}
                   </p>
-                  <p class="text-[11px] text-gray-500 dark:text-gray-400">
-                    Kel. {{ row.kelurahan_nama }}
+                  <p class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <UIcon name="i-heroicons-map-pin" class="w-3 h-3 text-teal-500 shrink-0" />
+                    <span>Kel. {{ row.kelurahan_nama }}</span>
                   </p>
                 </div>
               </td>
@@ -285,6 +317,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
           <div>
             Menampilkan {{ (currentPage - 1) * pageLimit + 1 }} - {{ Math.min(currentPage * pageLimit, data?.total || 0) }} dari total {{ data?.total || 0 }} perkara di Kecamatan {{ selectedKecamatanNama || selectedKecamatan }}
+            <span v-if="selectedKelurahan" class="font-semibold text-teal-600 dark:text-teal-400"> (Kelurahan {{ selectedKelurahan }})</span>
             <span v-if="selectedAlurPerkara === '15'" class="font-semibold text-blue-600 dark:text-blue-400"> (Gugatan)</span>
             <span v-else-if="selectedAlurPerkara === '16'" class="font-semibold text-purple-600 dark:text-purple-400"> (Permohonan)</span>
           </div>
@@ -309,6 +342,7 @@ const {
   selectedAlurPerkara,
   selectedKecamatan,
   selectedKecamatanNama,
+  selectedKelurahan,
   refreshSignal,
   loadingPerkaraId,
   setKecamatanDanAlur,
@@ -331,23 +365,50 @@ const quickKecamatanList = [
   'Kepulauan Seribu Selatan'
 ]
 
-const kecamatanOptions = [
-  { label: '-- Pilih Kecamatan --', value: '' },
-  { label: 'Koja', value: 'Koja' },
-  { label: 'Cilincing', value: 'Cilincing' },
-  { label: 'Tanjung Priok', value: 'Tanjung Priok' },
-  { label: 'Penjaringan', value: 'Penjaringan' },
-  { label: 'Pademangan', value: 'Pademangan' },
-  { label: 'Kelapa Gading', value: 'Kelapa Gading' },
-  { label: 'Kepulauan Seribu Utara', value: 'Kepulauan Seribu Utara' },
-  { label: 'Kepulauan Seribu Selatan', value: 'Kepulauan Seribu Selatan' }
-]
-
 const alurOptions = [
   { label: 'Semua Alur', value: 'all' },
   { label: 'Gugatan (Pdt.G)', value: '15' },
   { label: 'Permohonan (Pdt.P)', value: '16' }
 ]
+
+// useLazyFetch hanya fetch jika selectedKecamatan bernilai truthy
+const { data, pending, refresh } = useLazyFetch('/api/geografi/detail', {
+  server: false,
+  query: computed(() => ({
+    year: selectedYear.value,
+    pihak_type: selectedPihakType.value,
+    alur: selectedAlurPerkara.value,
+    kecamatan: selectedKecamatan.value,
+    kelurahan: selectedKelurahan.value,
+    search: searchQuery.value,
+    page: currentPage.value,
+    limit: pageLimit
+  })),
+  watch: [selectedYear, selectedPihakType, selectedAlurPerkara, selectedKecamatan, selectedKelurahan, currentPage],
+  default: () => null
+})
+
+// Opsi kelurahan yang berada di bawah kecamatan yang sedang dilihat
+const kelurahanOptions = computed(() => {
+  const options = [{ label: '-- Semua Kelurahan --', value: '' }]
+  const list = data.value?.availableKelurahan || []
+  list.forEach(item => {
+    options.push({
+      label: `${item.nama} (${item.total})`,
+      value: item.nama
+    })
+  })
+  return options
+})
+
+function onKelurahanChange() {
+  currentPage.value = 1
+}
+
+function clearKelurahan() {
+  selectedKelurahan.value = ''
+  currentPage.value = 1
+}
 
 // Deteksi akurat apakah perkara adalah Permohonan (Pdt.P - alur 16)
 function isPermohonan(row) {
@@ -359,16 +420,9 @@ function isPermohonan(row) {
 }
 
 function selectQuickKecamatan(kecNama) {
+  selectedKelurahan.value = ''
   setKecamatanDanAlur(kecNama, kecNama, selectedAlurPerkara.value || 'all')
   scrollToDetail()
-}
-
-function onKecamatanChange() {
-  selectedKecamatanNama.value = selectedKecamatan.value
-  currentPage.value = 1
-  if (selectedKecamatan.value) {
-    scrollToDetail()
-  }
 }
 
 function scrollToDetail() {
@@ -381,24 +435,14 @@ function scrollToDetail() {
 }
 
 // Reset page ke 1 jika filter berubah
-watch([selectedYear, selectedPihakType, selectedAlurPerkara, selectedKecamatan], () => {
+watch([selectedYear, selectedPihakType, selectedAlurPerkara, selectedKecamatan, selectedKelurahan], () => {
   currentPage.value = 1
 })
 
-// useLazyFetch hanya fetch jika selectedKecamatan bernilai truthy
-const { data, pending, refresh } = useLazyFetch('/api/geografi/detail', {
-  server: false,
-  query: computed(() => ({
-    year: selectedYear.value,
-    pihak_type: selectedPihakType.value,
-    alur: selectedAlurPerkara.value,
-    kecamatan: selectedKecamatan.value,
-    search: searchQuery.value,
-    page: currentPage.value,
-    limit: pageLimit
-  })),
-  watch: [selectedYear, selectedPihakType, selectedAlurPerkara, selectedKecamatan, currentPage],
-  default: () => null
+// Reset kelurahan jika kecamatan berganti
+watch(selectedKecamatan, () => {
+  selectedKelurahan.value = ''
+  currentPage.value = 1
 })
 
 const isLoading = computed(() => {
@@ -420,6 +464,7 @@ function resetSearch() {
 function clearKecamatan() {
   selectedKecamatan.value = ''
   selectedKecamatanNama.value = ''
+  selectedKelurahan.value = ''
   selectedAlurPerkara.value = 'all'
   searchQuery.value = ''
   currentPage.value = 1

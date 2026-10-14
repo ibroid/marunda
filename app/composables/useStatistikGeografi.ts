@@ -6,6 +6,8 @@ export const useStatistikGeografi = () => {
   // Filter state
   const selectedKecamatan = useState<string>('geografiSelectedKecamatan', () => '')
   const selectedKecamatanNama = useState<string>('geografiSelectedKecamatanNama', () => '')
+  const selectedKelurahan = useState<string>('geografiSelectedKelurahan', () => '')
+  const selectedKelurahanNama = useState<string>('geografiSelectedKelurahanNama', () => '')
   const selectedPihakType = useState<'pihak1' | 'pihak2' | 'semua'>('geografiSelectedPihakType', () => 'pihak1')
   const selectedAlurPerkara = useState<string>('geografiSelectedAlurPerkara', () => 'all')
 
@@ -22,9 +24,13 @@ export const useStatistikGeografi = () => {
       // Toggle off jika diklik ulang
       selectedKecamatan.value = ''
       selectedKecamatanNama.value = ''
+      selectedKelurahan.value = ''
+      selectedKelurahanNama.value = ''
     } else {
       selectedKecamatan.value = kode
       selectedKecamatanNama.value = nama || kode
+      selectedKelurahan.value = ''
+      selectedKelurahanNama.value = ''
     }
   }
 
@@ -32,11 +38,15 @@ export const useStatistikGeografi = () => {
     selectedKecamatan.value = kode
     selectedKecamatanNama.value = nama || kode
     selectedAlurPerkara.value = alur
+    selectedKelurahan.value = ''
+    selectedKelurahanNama.value = ''
   }
 
   const resetFilter = () => {
     selectedKecamatan.value = ''
     selectedKecamatanNama.value = ''
+    selectedKelurahan.value = ''
+    selectedKelurahanNama.value = ''
     selectedAlurPerkara.value = 'all'
   }
 
@@ -86,6 +96,8 @@ export const useStatistikGeografi = () => {
     namaSatker,
     selectedKecamatan,
     selectedKecamatanNama,
+    selectedKelurahan,
+    selectedKelurahanNama,
     selectedPihakType,
     selectedAlurPerkara,
     refreshSignal,
