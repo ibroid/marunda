@@ -48,11 +48,16 @@ export default defineEventHandler(async (event) => {
           OR (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 3 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0
         ) THEN 0 ELSE 1 END) AS belum_pjs,
         SUM(CASE WHEN (
+          (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 4 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0
+        ) THEN 0 ELSE 1 END) AS belum_phs,
+        SUM(CASE WHEN (
           ((pp.sk_penetapan_majelis_hakim_dok IS NOT NULL AND pp.sk_penetapan_majelis_hakim_dok != '') OR (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 1 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0)
           AND
           ((pp.sk_penetapan_panitera_pengganti_dok IS NOT NULL AND pp.sk_penetapan_panitera_pengganti_dok != '') OR (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 2 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0)
           AND
           ((pp.sk_penetapan_jurusita_dok IS NOT NULL AND pp.sk_penetapan_jurusita_dok != '') OR (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 3 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0)
+          AND
+          ((SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 4 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0)
         ) THEN 1 ELSE 0 END) AS sudah_lengkap
       FROM perkara p
       LEFT JOIN perkara_penetapan pp ON p.perkara_id = pp.perkara_id
@@ -64,6 +69,7 @@ export default defineEventHandler(async (event) => {
     const belumPmh = Number(row.belum_pmh || 0)
     const belumPpp = Number(row.belum_ppp || 0)
     const belumPjs = Number(row.belum_pjs || 0)
+    const belumPhs = Number(row.belum_phs || 0)
     const sudahLengkap = Number(row.sudah_lengkap || 0)
     const semuaBelum = Math.max(0, totalPerkara - sudahLengkap)
     const persenLengkap = totalPerkara > 0 ? Math.round((sudahLengkap / totalPerkara) * 100) : 100
@@ -80,6 +86,7 @@ export default defineEventHandler(async (event) => {
         belumPmh,
         belumPpp,
         belumPjs,
+        belumPhs,
         semuaBelum,
         sudahLengkap,
         persenLengkap

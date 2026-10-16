@@ -52,10 +52,12 @@ export default defineEventHandler(async (event) => {
       havingClause = 'HAVING has_ppp_dok = 0'
     } else if (kategori === 'belum_pjs') {
       havingClause = 'HAVING has_pjs_dok = 0'
+    } else if (kategori === 'belum_phs') {
+      havingClause = 'HAVING has_phs_dok = 0'
     } else if (kategori === 'semua_belum') {
-      havingClause = 'HAVING (has_pmh_dok = 0 OR has_ppp_dok = 0 OR has_pjs_dok = 0)'
+      havingClause = 'HAVING (has_pmh_dok = 0 OR has_ppp_dok = 0 OR has_pjs_dok = 0 OR has_phs_dok = 0)'
     } else if (kategori === 'sudah_lengkap') {
-      havingClause = 'HAVING (has_pmh_dok = 1 AND has_ppp_dok = 1 AND has_pjs_dok = 1)'
+      havingClause = 'HAVING (has_pmh_dok = 1 AND has_ppp_dok = 1 AND has_pjs_dok = 1 AND has_phs_dok = 1)'
     }
 
     // 1. Hitung total data yang cocok
@@ -74,7 +76,10 @@ export default defineEventHandler(async (event) => {
           (CASE WHEN (
             (pp.sk_penetapan_jurusita_dok IS NOT NULL AND pp.sk_penetapan_jurusita_dok != '')
             OR (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 3 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0
-          ) THEN 1 ELSE 0 END) AS has_pjs_dok
+          ) THEN 1 ELSE 0 END) AS has_pjs_dok,
+          (CASE WHEN (
+            (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 4 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0
+          ) THEN 1 ELSE 0 END) AS has_phs_dok
         FROM perkara p
         LEFT JOIN perkara_penetapan pp ON p.perkara_id = pp.perkara_id
         WHERE ${dateFilter}
@@ -103,6 +108,8 @@ export default defineEventHandler(async (event) => {
         pp.penetapan_jurusita,
         pp.jurusita_text,
         pp.sk_penetapan_jurusita_dok,
+        pp.penetapan_hari_sidang,
+        pp.sidang_pertama,
         (CASE WHEN (
           (pp.sk_penetapan_majelis_hakim_dok IS NOT NULL AND pp.sk_penetapan_majelis_hakim_dok != '')
           OR (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 1 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0
@@ -114,7 +121,10 @@ export default defineEventHandler(async (event) => {
         (CASE WHEN (
           (pp.sk_penetapan_jurusita_dok IS NOT NULL AND pp.sk_penetapan_jurusita_dok != '')
           OR (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 3 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0
-        ) THEN 1 ELSE 0 END) AS has_pjs_dok
+        ) THEN 1 ELSE 0 END) AS has_pjs_dok,
+        (CASE WHEN (
+          (SELECT COUNT(id) FROM perkara_dokumen_penetapan pdp WHERE pdp.perkara_id = p.perkara_id AND pdp.jenis_dokumen_id = 4 AND pdp.dokumen IS NOT NULL AND pdp.dokumen != '') > 0
+        ) THEN 1 ELSE 0 END) AS has_phs_dok
       FROM perkara p
       LEFT JOIN perkara_penetapan pp ON p.perkara_id = pp.perkara_id
       WHERE ${dateFilter}
@@ -131,13 +141,15 @@ export default defineEventHandler(async (event) => {
       const hasPmh = Number(item.has_pmh_dok) === 1
       const hasPpp = Number(item.has_ppp_dok) === 1
       const hasPjs = Number(item.has_pjs_dok) === 1
-      const isLengkap = hasPmh && hasPpp && hasPjs
+      const hasPhs = Number(item.has_phs_dok) === 1
+      const isLengkap = hasPmh && hasPpp && hasPjs && hasPhs
 
       return {
         ...item,
         has_pmh_dok: hasPmh,
         has_ppp_dok: hasPpp,
         has_pjs_dok: hasPjs,
+        has_phs_dok: hasPhs,
         is_lengkap: isLengkap
       }
     })

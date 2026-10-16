@@ -9,7 +9,7 @@
       </div>
       <h2 class="text-2xl font-bold tracking-tight mt-1">Kontrol Berkas Penetapan</h2>
       <p class="text-sm text-emerald-100/90 mt-0.5">
-        Audit kepatuhan pengunggahan file/dokumen SK Penetapan Majelis Hakim (PMH), Panitera Pengganti (PPP), dan Jurusita (PJS)
+        Audit kepatuhan pengunggahan file/dokumen SK Penetapan Majelis Hakim (PMH), Panitera Pengganti (PPP), Jurusita (PJS), dan Penetapan Hari Sidang (PHS)
       </p>
     </div>
 

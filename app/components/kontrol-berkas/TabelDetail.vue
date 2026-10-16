@@ -13,7 +13,7 @@
             </UBadge>
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            Audit status kelengkapan file SK Penetapan Majelis, Panitera Pengganti, dan Jurusita
+            Audit status kelengkapan file SK Penetapan Majelis, Panitera Pengganti, Jurusita, dan Hari Sidang
           </p>
         </div>
 
@@ -73,6 +73,7 @@
             <th class="px-3.5 py-3 min-w-[180px]">Penetapan Majelis (PMH)</th>
             <th class="px-3.5 py-3 min-w-[180px]">Penetapan Panitera (PPP)</th>
             <th class="px-3.5 py-3 min-w-[180px]">Penetapan Jurusita (PJS)</th>
+            <th class="px-3.5 py-3 min-w-[180px]">Hari Sidang (PHS)</th>
             <th class="px-3.5 py-3 text-center min-w-[90px]">Status</th>
             <th class="px-3.5 py-3 text-center min-w-[90px]">Aksi SIPP</th>
           </tr>
@@ -87,6 +88,10 @@
             <td class="px-3.5 py-3 space-y-1">
               <USkeleton class="h-3 w-28" />
               <USkeleton class="h-2.5 w-40" />
+            </td>
+            <td class="px-3.5 py-3 space-y-1">
+              <USkeleton class="h-4 w-20 rounded-full" />
+              <USkeleton class="h-2.5 w-24" />
             </td>
             <td class="px-3.5 py-3 space-y-1">
               <USkeleton class="h-4 w-20 rounded-full" />
@@ -188,6 +193,27 @@
               </div>
             </td>
 
+            <!-- PHS -->
+            <td class="px-3.5 py-3">
+              <div class="flex items-center gap-1.5 mb-1">
+                <UBadge
+                  :color="item.has_phs_dok ? 'green' : 'red'"
+                  :variant="item.has_phs_dok ? 'subtle' : 'solid'"
+                  size="xs"
+                >
+                  <UIcon :name="item.has_phs_dok ? 'i-heroicons-check' : 'i-heroicons-x-mark'" class="w-3 h-3 mr-0.5" />
+                  {{ item.has_phs_dok ? 'Sudah Ada File' : 'Belum Ada File' }}
+                </UBadge>
+              </div>
+              <div
+                class="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1"
+                :title="item.penetapan_hari_sidang ? ('Tgl PHS: ' + formatDate(item.penetapan_hari_sidang) + (item.sidang_pertama ? ' | Sidang I: ' + formatDate(item.sidang_pertama) : '')) : 'Belum penetapan'"
+              >
+                {{ item.penetapan_hari_sidang ? ('PHS: ' + formatDate(item.penetapan_hari_sidang)) : 'Belum ditetapkan' }}
+                <span v-if="item.sidang_pertama" class="text-gray-400"> (Sdg I: {{ formatDate(item.sidang_pertama) }})</span>
+              </div>
+            </td>
+
             <!-- Status Kelengkapan Keseluruhan -->
             <td class="px-3.5 py-3 text-center whitespace-nowrap">
               <UBadge
@@ -218,7 +244,7 @@
 
           <!-- Empty State -->
           <tr v-if="!data?.items?.length">
-            <td colspan="9" class="px-4 py-10 text-center">
+            <td colspan="10" class="px-4 py-10 text-center">
               <div class="max-w-sm mx-auto space-y-2">
                 <UIcon name="i-heroicons-check-circle" class="w-8 h-8 text-emerald-500 mx-auto" />
                 <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">
@@ -298,6 +324,7 @@ const categoryTabs = [
   { id: 'belum_pmh', label: 'Belum PMH', icon: 'i-heroicons-document-text' },
   { id: 'belum_ppp', label: 'Belum PPP', icon: 'i-heroicons-document-text' },
   { id: 'belum_pjs', label: 'Belum PJS', icon: 'i-heroicons-document-text' },
+  { id: 'belum_phs', label: 'Belum PHS', icon: 'i-heroicons-document-text' },
   { id: 'sudah_lengkap', label: 'Sudah Lengkap', icon: 'i-heroicons-check-badge' },
   { id: 'semua', label: 'Semua Perkara', icon: 'i-heroicons-folder-open' }
 ]
@@ -308,6 +335,7 @@ const categoryTitle = computed(() => {
     belum_pmh: 'Perkara Belum Upload Penetapan Majelis Hakim (PMH)',
     belum_ppp: 'Perkara Belum Upload Penetapan Panitera Pengganti (PPP)',
     belum_pjs: 'Perkara Belum Upload Penetapan Jurusita (PJS)',
+    belum_phs: 'Perkara Belum Upload Penetapan Hari Sidang (PHS)',
     sudah_lengkap: 'Perkara Sudah Lengkap Semua File Penetapan',
     semua: 'Semua Perkara Terdaftar'
   }

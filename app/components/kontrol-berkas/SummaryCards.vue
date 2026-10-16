@@ -18,9 +18,9 @@
     </div>
 
     <!-- Skeleton Loading -->
-    <div v-if="isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+    <div v-if="isLoading" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
       <div
-        v-for="i in 6"
+        v-for="i in 7"
         :key="i"
         class="border rounded-xl p-3 bg-white dark:bg-gray-800 shadow-2xs space-y-2"
       >
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Real Content: Minimalist KPI Cards -->
-    <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+    <div v-else class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
       <!-- 1. Total Perkara -->
       <div
         class="border rounded-xl p-3 bg-white dark:bg-gray-800 shadow-2xs cursor-pointer transition hover:border-gray-400 dark:hover:border-gray-500"
@@ -123,7 +123,25 @@
         <p class="text-[11px] text-gray-400 mt-0.5 truncate">Penetapan Jurusita</p>
       </div>
 
-      <!-- 6. Lengkap Semua -->
+      <!-- 6. Belum PHS -->
+      <div
+        class="border rounded-xl p-3 bg-white dark:bg-gray-800 shadow-2xs cursor-pointer transition hover:border-purple-400 dark:hover:border-purple-500"
+        :class="{ 'ring-2 ring-purple-500 border-purple-500 bg-purple-50/20 dark:bg-purple-950/20': activeKategori === 'belum_phs' }"
+        @click="setKategori('belum_phs')"
+      >
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Belum PHS</span>
+          <UBadge :color="(data?.summary?.belumPhs || 0) > 0 ? 'red' : 'green'" size="xs">
+            {{ data?.summary?.belumPhs || 0 }}
+          </UBadge>
+        </div>
+        <p class="text-xl font-bold mt-1" :class="(data?.summary?.belumPhs || 0) > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'">
+          {{ data?.summary?.belumPhs || 0 }}
+        </p>
+        <p class="text-[11px] text-gray-400 mt-0.5 truncate">Hari Sidang (PHS)</p>
+      </div>
+
+      <!-- 7. Lengkap Semua -->
       <div
         class="border rounded-xl p-3 bg-white dark:bg-gray-800 shadow-2xs cursor-pointer transition hover:border-emerald-400 dark:hover:border-emerald-500"
         :class="{ 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20': activeKategori === 'sudah_lengkap' }"
@@ -136,7 +154,7 @@
         <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
           {{ data?.summary?.sudahLengkap || 0 }}
         </p>
-        <p class="text-[11px] text-gray-400 mt-0.5 truncate">Komplit 3 dokumen</p>
+        <p class="text-[11px] text-gray-400 mt-0.5 truncate">Komplit 4 dokumen</p>
       </div>
     </div>
   </div>
