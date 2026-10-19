@@ -729,6 +729,11 @@ const geografiSubItems = [
     label: 'Faktor Perceraian',
     to: '/statistik-geografi/faktor-perceraian',
     icon: 'i-heroicons-heart'
+  },
+  {
+    label: 'Pendidikan Perceraian',
+    to: '/statistik-geografi/pendidikan-perceraian',
+    icon: 'i-heroicons-academic-cap'
   }
 ]
 
