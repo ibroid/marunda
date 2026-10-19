@@ -59,10 +59,18 @@
           </p>
         </div>
 
-        <!-- 3. Tunggakan PBT Jurusita -->
-        <div class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4" :class="(data?.summary?.totalBelumPbt || 0) > 0 ? 'border-l-orange-500' : 'border-l-green-500'">
+        <!-- 3. Tunggakan PBT Jurusita (Clickable) -->
+        <div
+          class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 cursor-pointer hover:shadow-md hover:border-orange-400 dark:hover:border-orange-500 transition-all group"
+          :class="(data?.summary?.totalBelumPbt || 0) > 0 ? 'border-l-orange-500' : 'border-l-green-500'"
+          title="Klik untuk melihat daftar perkara tunggakan PBT"
+          @click="openModalPbt(data?.summary?.totalBelumPbt)"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Tunggakan PBT (JSP)</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors flex items-center gap-1">
+              <span>Tunggakan PBT (JSP)</span>
+              <UIcon name="i-heroicons-arrow-top-right-on-square" class="w-3.5 h-3.5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+            </span>
             <UBadge :color="(data?.summary?.totalBelumPbt || 0) > 0 ? 'orange' : 'green'" variant="subtle" size="xs">
               {{ data?.summary?.totalBelumPbt || 0 }} Perkara
             </UBadge>
@@ -112,7 +120,7 @@
 </template>
 
 <script setup>
-const { selectedYear, namaSatker, refreshSignal, openModalMinutasi } = useDashboardPanitera()
+const { selectedYear, namaSatker, refreshSignal, openModalMinutasi, openModalPbt } = useDashboardPanitera()
 
 const { data, pending, refresh } = useLazyFetch('/api/dashboard/panitera/summary', {
   server: false,

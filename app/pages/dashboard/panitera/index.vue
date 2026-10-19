@@ -24,6 +24,9 @@
 
     <!-- Modal Daftar Perkara Belum Minutasi -->
     <DashboardPaniteraModalMinutasi />
+
+    <!-- Modal Daftar Perkara Tunggakan PBT -->
+    <DashboardPaniteraModalPbt />
   </div>
 </template>
 

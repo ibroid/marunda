@@ -4,6 +4,8 @@ export const useDashboardPanitera = () => {
   const refreshSignal = useState<number>('paniteraRefreshSignal', () => 0)
   const isModalMinutasiOpen = useState<boolean>('paniteraModalMinutasiOpen', () => false)
   const totalMinutasiCases = useState<number>('paniteraTotalMinutasiCases', () => 0)
+  const isModalPbtOpen = useState<boolean>('paniteraModalPbtOpen', () => false)
+  const totalPbtCases = useState<number>('paniteraTotalPbtCases', () => 0)
   const loadingPerkaraId = ref<number | null>(null)
   const toast = useToast()
 
@@ -20,6 +22,17 @@ export const useDashboardPanitera = () => {
 
   const closeModalMinutasi = () => {
     isModalMinutasiOpen.value = false
+  }
+
+  const openModalPbt = (total?: number) => {
+    if (typeof total === 'number') {
+      totalPbtCases.value = total
+    }
+    isModalPbtOpen.value = true
+  }
+
+  const closeModalPbt = () => {
+    isModalPbtOpen.value = false
   }
 
   const formatDate = (dateStr?: string | null) => {
@@ -96,10 +109,14 @@ export const useDashboardPanitera = () => {
     refreshSignal,
     isModalMinutasiOpen,
     totalMinutasiCases,
+    isModalPbtOpen,
+    totalPbtCases,
     loadingPerkaraId,
     triggerRefresh,
     openModalMinutasi,
     closeModalMinutasi,
+    openModalPbt,
+    closeModalPbt,
     formatDate,
     cleanHtml,
     openSipp
