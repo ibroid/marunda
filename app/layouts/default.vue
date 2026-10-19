@@ -724,6 +724,11 @@ const geografiSubItems = [
     label: 'Jenis Perkara',
     to: '/statistik-geografi/jenis-perkara',
     icon: 'i-heroicons-rectangle-stack'
+  },
+  {
+    label: 'Faktor Perceraian',
+    to: '/statistik-geografi/faktor-perceraian',
+    icon: 'i-heroicons-heart'
   }
 ]
 
@@ -769,6 +774,7 @@ const currentTitle = computed(() => {
   if (route.path === '/persidangan/jadwal') return 'Jadwal Sidang Pengadilan'
   if (route.path === '/persidangan/sidang-keliling') return 'Jadwal Sidang Keliling Belum Ditentukan'
   if (route.path.startsWith('/persidangan')) return 'Monitoring Persidangan SIPP'
+  if (route.path === '/statistik-geografi/faktor-perceraian' || route.path.startsWith('/faktor-perceraian')) return 'Statistik Geografi - Faktor Perceraian'
   if (route.path === '/statistik-geografi/jenis-perkara') return 'Statistik Geografi - Jenis Perkara'
   if (route.path === '/statistik-geografi/wilayah' || route.path.startsWith('/statistik-geografi')) return 'Statistik Geografi - Data Per Wilayah'
   const match = navItems.find(item => item.to === route.path)
