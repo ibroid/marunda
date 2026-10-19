@@ -224,6 +224,8 @@
 </template>
 
 <script setup>
+import ModalDetailPendidikan from './ModalDetailPendidikan.vue'
+
 const {
   selectedYear,
   selectedJenisCerai,

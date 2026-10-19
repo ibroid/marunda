@@ -10,11 +10,53 @@ export default defineEventHandler(async (event) => {
 
   try {
     const [
+      putusHariIniCount,
+      putusBelumMinutCount,
+      belumEdocPutusanCount,
+      belumBiayaRedaksiMateraiCount,
       putusHariIni,
       putusBelumMinut,
       belumEdocPutusan,
       belumBiayaRedaksiMaterai
     ] = await Promise.all([
+      // Count 1. Putus Hari Ini
+      prisma.$queryRawUnsafe<any[]>(`
+        SELECT COUNT(pp.perkara_id) AS total
+        FROM perkara_putusan pp
+        WHERE pp.tanggal_putusan = CURDATE()
+      `),
+
+      // Count 2. Putus Belum Minutasi
+      prisma.$queryRawUnsafe<any[]>(`
+        SELECT COUNT(pp.perkara_id) AS total
+        FROM perkara_putusan pp
+        WHERE pp.tanggal_putusan >= '${startDate}' AND pp.tanggal_putusan <= '${endDate}'
+          AND (pp.tanggal_minutasi IS NULL OR pp.tanggal_minutasi = '0000-00-00' OR pp.tanggal_minutasi = '')
+      `),
+
+      // Count 3. Belum e-Doc Putusan
+      prisma.$queryRawUnsafe<any[]>(`
+        SELECT COUNT(pp.perkara_id) AS total
+        FROM perkara_putusan pp
+        WHERE pp.tanggal_putusan >= '${startDate}' AND pp.tanggal_putusan <= '${endDate}'
+          AND (pp.amar_putusan_dok IS NULL OR pp.amar_putusan_dok = '')
+      `),
+
+      // Count 4. Belum Biaya Redaksi/Meterai
+      prisma.$queryRawUnsafe<any[]>(`
+        SELECT COUNT(p.perkara_id) AS total
+        FROM perkara_putusan pp
+        JOIN perkara p ON p.perkara_id = pp.perkara_id
+        WHERE pp.tanggal_putusan >= '${startDate}' AND pp.tanggal_putusan <= '${endDate}'
+          AND p.prodeo = 0
+          AND (
+            NOT EXISTS (SELECT 1 FROM perkara_biaya pb WHERE pb.perkara_id = p.perkara_id AND pb.jenis_biaya_id IN (157, 172, 187, 202, 217))
+            OR
+            NOT EXISTS (SELECT 1 FROM perkara_biaya pb WHERE pb.perkara_id = p.perkara_id AND pb.jenis_biaya_id IN (152, 167, 182, 197, 212))
+          )
+      `),
+
+      // Top 10 data untuk display singkat
       // 1. Putus Hari Ini
       prisma.$queryRawUnsafe<any[]>(`
         SELECT p.perkara_id, p.nomor_perkara, pp.tanggal_putusan
@@ -72,19 +114,19 @@ export default defineEventHandler(async (event) => {
       year,
       atensi: {
         putusHariIni: {
-          total: putusHariIni.length,
+          total: Number(putusHariIniCount[0]?.total || 0),
           data: putusHariIni
         },
         putusBelumMinutasi: {
-          total: putusBelumMinut.length,
+          total: Number(putusBelumMinutCount[0]?.total || 0),
           data: putusBelumMinut
         },
         belumEdocPutusan: {
-          total: belumEdocPutusan.length,
+          total: Number(belumEdocPutusanCount[0]?.total || 0),
           data: belumEdocPutusan
         },
         belumBiayaRedaksiMaterai: {
-          total: belumBiayaRedaksiMaterai.length,
+          total: Number(belumBiayaRedaksiMateraiCount[0]?.total || 0),
           data: belumBiayaRedaksiMaterai
         }
       }

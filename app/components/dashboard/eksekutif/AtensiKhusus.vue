@@ -18,12 +18,19 @@
         </div>
       </template>
 
-      <!-- Real Cards -->
+      <!-- Real Cards (Clickable to open Detail Modal) -->
       <template v-else>
         <!-- 1. Putus Hari Ini Belum Minutasi -->
-        <div class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-amber-500">
+        <div
+          class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-amber-500 cursor-pointer hover:shadow-md hover:border-amber-400 dark:hover:border-amber-500 transition-all group"
+          title="Klik untuk melihat rincian perkara putus hari ini"
+          @click="openModalAtensi('putus_hari_ini', 'Putus Hari Ini Belum Minutasi', data?.atensi?.putusHariIni?.total)"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Putus Hari Ini</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors flex items-center gap-1">
+              <span>Putus Hari Ini</span>
+              <UIcon name="i-heroicons-arrow-top-right-on-square" class="w-3.5 h-3.5 text-gray-400 group-hover:text-amber-500 transition-colors" />
+            </span>
             <UBadge color="amber" variant="subtle" size="xs">
               {{ data?.atensi?.putusHariIni?.total || 0 }}
             </UBadge>
@@ -35,9 +42,16 @@
         </div>
 
         <!-- 2. Putus Belum Minutasi -->
-        <div class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-red-500">
+        <div
+          class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-red-500 cursor-pointer hover:shadow-md hover:border-red-400 dark:hover:border-red-500 transition-all group"
+          title="Klik untuk melihat rincian perkara putus belum minutasi"
+          @click="openModalAtensi('putus_belum_minutasi', 'Putus Belum Minutasi', data?.atensi?.putusBelumMinutasi?.total)"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Putus Belum Minutasi</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center gap-1">
+              <span>Putus Belum Minutasi</span>
+              <UIcon name="i-heroicons-arrow-top-right-on-square" class="w-3.5 h-3.5 text-gray-400 group-hover:text-red-500 transition-colors" />
+            </span>
             <UBadge color="red" variant="subtle" size="xs">
               {{ data?.atensi?.putusBelumMinutasi?.total || 0 }}
             </UBadge>
@@ -49,9 +63,16 @@
         </div>
 
         <!-- 3. Belum e-Doc Putusan -->
-        <div class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-purple-500">
+        <div
+          class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-purple-500 cursor-pointer hover:shadow-md hover:border-purple-400 dark:hover:border-purple-500 transition-all group"
+          title="Klik untuk melihat rincian perkara belum upload e-doc"
+          @click="openModalAtensi('belum_edoc_putusan', 'Belum Upload e-Doc Putusan', data?.atensi?.belumEdocPutusan?.total)"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Belum Upload e-Doc</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex items-center gap-1">
+              <span>Belum Upload e-Doc</span>
+              <UIcon name="i-heroicons-arrow-top-right-on-square" class="w-3.5 h-3.5 text-gray-400 group-hover:text-purple-500 transition-colors" />
+            </span>
             <UBadge color="purple" variant="subtle" size="xs">
               {{ data?.atensi?.belumEdocPutusan?.total || 0 }}
             </UBadge>
@@ -63,9 +84,16 @@
         </div>
 
         <!-- 4. Belum Biaya Redaksi/Meterai -->
-        <div class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-rose-500">
+        <div
+          class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-rose-500 cursor-pointer hover:shadow-md hover:border-rose-400 dark:hover:border-rose-500 transition-all group"
+          title="Klik untuk melihat rincian perkara belum biaya redaksi/meterai"
+          @click="openModalAtensi('belum_biaya_redaksi_materai', 'Belum Biaya Redaksi & Meterai', data?.atensi?.belumBiayaRedaksiMaterai?.total)"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Belum Biaya Putus</span>
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors flex items-center gap-1">
+              <span>Belum Biaya Putus</span>
+              <UIcon name="i-heroicons-arrow-top-right-on-square" class="w-3.5 h-3.5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+            </span>
             <UBadge color="rose" variant="subtle" size="xs">
               {{ data?.atensi?.belumBiayaRedaksiMaterai?.total || 0 }}
             </UBadge>
@@ -77,11 +105,14 @@
         </div>
       </template>
     </div>
+
+    <!-- Modal Detail Atensi Eksekutif -->
+    <DashboardEksekutifModalDetailAtensi />
   </div>
 </template>
 
 <script setup>
-const { selectedYear, refreshSignal } = useDashboardEksekutif()
+const { selectedYear, refreshSignal, openModalAtensi } = useDashboardEksekutif()
 
 const { data, pending, refresh } = useLazyFetch('/api/dashboard/eksekutif/atensi', {
   server: false,
