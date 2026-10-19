@@ -20,7 +20,7 @@
                   {{ totalCases }} Perkara
                 </UBadge>
                 <UBadge color="gray" variant="subtle" size="xs">
-                  Tahun {{ selectedYear }}
+                  Hari Ini
                 </UBadge>
               </div>
               <p class="text-xs text-gray-500 mt-0.5">
@@ -85,7 +85,7 @@
               <tr>
                 <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300 w-12 text-center">No</th>
                 <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Nomor Perkara &amp; Pihak</th>
-                <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Tgl Putus</th>
+                <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">{{ modalAtensiType === 'redaksi_materai_tanpa_putusan' ? 'Tgl Biaya' : 'Tgl Putus' }}</th>
                 <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Majelis Hakim &amp; PP</th>
                 <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Status Atensi</th>
                 <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300 text-center w-28">Aksi</th>
@@ -124,12 +124,22 @@
                   </div>
                 </td>
 
-                <!-- Tanggal Putusan & Selisih Hari -->
+                <!-- Tanggal Putusan / Biaya & Selisih Hari -->
                 <td class="py-2.5 px-3 whitespace-nowrap">
                   <span class="font-medium text-gray-800 dark:text-gray-200 block">
-                    {{ formatDate(item.tanggal_putusan) }}
+                    {{ formatDate(modalAtensiType === 'redaksi_materai_tanpa_putusan' ? item.tanggal_biaya : item.tanggal_putusan) }}
                   </span>
                   <UBadge
+                    v-if="modalAtensiType === 'redaksi_materai_tanpa_putusan'"
+                    color="orange"
+                    variant="subtle"
+                    size="xs"
+                    class="mt-0.5"
+                  >
+                    Hari ini
+                  </UBadge>
+                  <UBadge
+                    v-else
                     :color="item.selisih_hari > 14 ? 'red' : item.selisih_hari > 7 ? 'amber' : item.selisih_hari <= 0 ? 'emerald' : 'blue'"
                     variant="subtle"
                     size="xs"
@@ -196,6 +206,16 @@
                     </UBadge>
                   </div>
 
+                  <!-- Type: redaksi_materai_tanpa_putusan -->
+                  <div v-else-if="modalAtensiType === 'redaksi_materai_tanpa_putusan'" class="space-y-1">
+                    <UBadge color="red" variant="subtle" size="xs">
+                      Belum Putus
+                    </UBadge>
+                    <div v-if="item.uraian_biaya" class="text-[10px] text-gray-500 max-w-xs truncate" :title="item.uraian_biaya">
+                      {{ item.uraian_biaya }}
+                    </div>
+                  </div>
+
                   <!-- Default fallback -->
                   <div v-else>
                     <span class="text-gray-400">-</span>
@@ -224,7 +244,7 @@
                   <div class="flex flex-col items-center justify-center gap-2">
                     <UIcon name="i-heroicons-check-circle" class="w-8 h-8 text-emerald-500" />
                     <span>
-                      {{ searchInput ? 'Tidak ada perkara yang cocok dengan kata kunci pencarian.' : 'Tidak ada perkara atensi untuk kategori ini pada tahun ' + selectedYear }}
+                      {{ searchInput ? 'Tidak ada perkara yang cocok dengan kata kunci pencarian.' : 'Tidak ada perkara atensi untuk kategori ini pada hari ini' }}
                     </span>
                   </div>
                 </td>
@@ -306,8 +326,8 @@ const headerConfig = computed(() => {
       }
     case 'putus_belum_minutasi':
       return {
-        title: 'Daftar Perkara: Putus Belum Minutasi',
-        description: `Perkara yang telah diputus namun belum selesai diminutasi oleh Majelis & PP — Tahun ${selectedYear.value}`,
+        title: 'Daftar Perkara: Putus Hari Ini Belum Minutasi',
+        description: 'Perkara yang diputus hari ini namun belum selesai diminutasi oleh Majelis & PP (One Day Minutation)',
         color: 'red',
         icon: 'i-heroicons-document-text',
         bgClass: 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400',
@@ -315,8 +335,8 @@ const headerConfig = computed(() => {
       }
     case 'belum_edoc_putusan':
       return {
-        title: 'Daftar Perkara: Belum Upload e-Doc Putusan',
-        description: `Perkara putus yang belum mengunggah dokumen elektronik file amar putusan — Tahun ${selectedYear.value}`,
+        title: 'Daftar Perkara: Putus Hari Ini Belum Upload e-Doc',
+        description: 'Perkara yang diputus hari ini yang belum mengunggah dokumen elektronik file amar putusan (One Day Publish)',
         color: 'purple',
         icon: 'i-heroicons-arrow-up-tray',
         bgClass: 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400',
@@ -324,17 +344,26 @@ const headerConfig = computed(() => {
       }
     case 'belum_biaya_redaksi_materai':
       return {
-        title: 'Daftar Perkara: Belum Biaya Redaksi / Meterai',
-        description: `Perkara putus non-prodeo yang belum diinput transaksi biaya redaksi atau meterai — Tahun ${selectedYear.value}`,
+        title: 'Daftar Perkara: Putus Hari Ini Belum Biaya Redaksi / Meterai',
+        description: 'Perkara yang diputus hari ini (non-prodeo) yang belum diinput transaksi biaya redaksi atau meterai',
         color: 'rose',
         icon: 'i-heroicons-banknotes',
         bgClass: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400',
         iconClass: 'text-rose-600 dark:text-rose-400'
       }
+    case 'redaksi_materai_tanpa_putusan':
+      return {
+        title: 'Daftar Perkara: Redaksi & Materai Hari Ini Tanpa Putusan',
+        description: 'Perkara dengan transaksi biaya redaksi atau meterai hari ini namun belum ada tanggal putusan di SIPP',
+        color: 'orange',
+        icon: 'i-heroicons-banknotes',
+        bgClass: 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400',
+        iconClass: 'text-orange-600 dark:text-orange-400'
+      }
     default:
       return {
-        title: modalAtensiTitle.value || 'Daftar Perkara Atensi',
-        description: `Daftar rincian perkara atensi kepatuhan — Tahun ${selectedYear.value}`,
+        title: modalAtensiTitle.value || 'Daftar Perkara Atensi Hari Ini',
+        description: 'Daftar rincian perkara atensi kepatuhan hari ini',
         color: 'primary',
         icon: 'i-heroicons-exclamation-triangle',
         bgClass: 'bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400',
