@@ -734,6 +734,11 @@ const geografiSubItems = [
     label: 'Pendidikan Perceraian',
     to: '/statistik-geografi/pendidikan-perceraian',
     icon: 'i-heroicons-academic-cap'
+  },
+  {
+    label: 'Pekerjaan Perceraian',
+    to: '/statistik-geografi/pekerjaan-perceraian',
+    icon: 'i-heroicons-briefcase'
   }
 ]
 

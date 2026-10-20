@@ -44,6 +44,7 @@ export default defineEventHandler(async (event) => {
       JOIN perkara p ON p.perkara_id = js.perkara_id
       JOIN perkara_penetapan pt ON p.perkara_id = pt.perkara_id
       WHERE js.tanggal_sidang >= '${startDate}' AND js.tanggal_sidang <= '${endDate}'
+        AND js.tanggal_sidang <= CURDATE()
         AND pt.panitera_pengganti_id = ${ppId}
         ${filterCondition}
       ORDER BY js.tanggal_sidang DESC, js.urutan DESC
