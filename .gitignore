@@ -58,6 +58,7 @@ estat/
 monev/
 monitoring_sipp/
 porsi/
+sipp_kasir/
 
 # Logs
 logs/
