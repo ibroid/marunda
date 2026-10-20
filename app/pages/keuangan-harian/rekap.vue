@@ -1,7 +1,6 @@
 <template>
   <div class="space-y-6">
     <KeuanganHarianHeaderBanner current-slug="rekap" />
-    <KeuanganHarianNavTabs active-slug="rekap" />
     <KeuanganHarianTabelRekap />
   </div>
 </template>

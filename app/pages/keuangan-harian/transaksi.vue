@@ -1,7 +1,6 @@
 <template>
   <div class="space-y-6">
     <KeuanganHarianHeaderBanner current-slug="transaksi" />
-    <KeuanganHarianNavTabs active-slug="transaksi" />
     <KeuanganHarianTabelTransaksi />
   </div>
 </template>
