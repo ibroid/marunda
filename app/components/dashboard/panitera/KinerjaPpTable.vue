@@ -7,7 +7,7 @@
             <UIcon name="i-heroicons-user-group" class="w-4 h-4 text-emerald-500" />
             Kepatuhan Upload BAS per Panitera Pengganti (PP)
           </h3>
-          <p class="text-[11px] text-gray-400 mt-0.5">Klik nama Panitera Pengganti untuk membuka daftar perkara &amp; status BAS</p>
+          <p class="text-[11px] text-gray-400 mt-0.5">Sidang s.d. hari ini — Klik nama Panitera Pengganti untuk membuka daftar perkara &amp; status BAS</p>
         </div>
         <span v-if="!isLoading" class="text-xs text-gray-500">{{ data?.kinerjaPP?.length || 0 }} Panitera Pengganti</span>
         <USkeleton v-else class="h-4 w-28" />

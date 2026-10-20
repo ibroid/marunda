@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
           SUM(CASE WHEN js.edoc_bas IS NULL OR js.edoc_bas = '' THEN 1 ELSE 0 END) AS bas_kosong
         FROM perkara_jadwal_sidang js
         WHERE js.tanggal_sidang >= '${startDate}' AND js.tanggal_sidang <= '${endDate}'
+          AND js.tanggal_sidang <= CURDATE()
       `),
 
       // 3. Perkara Putus Belum Minutasi

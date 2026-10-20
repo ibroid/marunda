@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
       JOIN perkara_penetapan pt ON pt.perkara_id = js.perkara_id
       JOIN panitera_pn p ON p.id = pt.panitera_pengganti_id
       WHERE js.tanggal_sidang >= '${startDate}' AND js.tanggal_sidang <= '${endDate}'
+        AND js.tanggal_sidang <= CURDATE()
       GROUP BY p.id, p.nama_gelar
       ORDER BY bas_kosong DESC, total_sidang DESC
     `)
