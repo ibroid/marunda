@@ -736,6 +736,11 @@ const geografiSubItems = [
     icon: 'i-heroicons-academic-cap'
   },
   {
+    label: 'Pendidikan Dispensasi',
+    to: '/statistik-geografi/pendidikan-dispensasi',
+    icon: 'i-heroicons-academic-cap'
+  },
+  {
     label: 'Pekerjaan Perceraian',
     to: '/statistik-geografi/pekerjaan-perceraian',
     icon: 'i-heroicons-briefcase'
