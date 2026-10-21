@@ -380,7 +380,7 @@
           <div class="border-t border-gray-200 dark:border-gray-700"></div>
         </div>
 
-        <!-- Sub Menu Principal & Advokat (Tepat di atas Keuangan Harian) -->
+        <!-- Sub Menu Principal, Advokat & Saksi (Tepat di atas Keuangan Harian) -->
         <!-- Mode Collapsed (Mini): Gunakan Dropdown Popup -->
         <div v-if="effectiveCollapsed">
           <UDropdown
@@ -388,7 +388,7 @@
             :popper="{ placement: 'right-start' }"
             class="w-full"
           >
-            <UTooltip text="Principal & Advokat" :popper="{ placement: 'right' }" class="w-full">
+            <UTooltip text="Principal, Advokat & Saksi" :popper="{ placement: 'right' }" class="w-full">
               <button
                 type="button"
                 class="w-full flex items-center justify-center p-2.5 rounded-lg text-sm font-medium transition-colors"
@@ -418,7 +418,7 @@
           >
             <div class="flex items-center gap-3">
               <UIcon name="i-heroicons-user-group" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
-              <span class="truncate">Principal & Advokat</span>
+              <span class="truncate">Principal, Advokat & Saksi</span>
             </div>
             <UIcon
               :name="isPrincipalOpen ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'"
@@ -925,22 +925,23 @@ const geografiDropdownItems = computed(() => [
   }))
 ])
 
-// State untuk toggle accordion sub-menu principal & advokat
+// State untuk toggle accordion sub-menu principal, advokat & saksi
 const isPrincipalOpen = ref(true)
 
 const isPrincipalRoute = computed(() => {
-  return route.path.startsWith('/principal') || route.path.startsWith('/advokat')
+  return route.path.startsWith('/principal') || route.path.startsWith('/advokat') || route.path.startsWith('/saksi')
 })
 
 const principalSubItems = [
   { label: 'Principal', to: '/principal', icon: 'i-heroicons-user' },
-  { label: 'Advokat', to: '/advokat', icon: 'i-heroicons-briefcase' }
+  { label: 'Advokat', to: '/advokat', icon: 'i-heroicons-briefcase' },
+  { label: 'Saksi', to: '/saksi', icon: 'i-heroicons-identification' }
 ]
 
 const principalDropdownItems = computed(() => [
   [
     {
-      label: 'Principal & Advokat',
+      label: 'Principal, Advokat & Saksi',
       disabled: true
     }
   ],

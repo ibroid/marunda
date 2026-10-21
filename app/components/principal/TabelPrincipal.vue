@@ -15,7 +15,7 @@
             Pencarian Data Principal SIPP
           </h3>
           <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">
-            Karena basis data SIPP memiliki <strong>lebih dari 120.000 data pihak</strong>, data tidak dimuat sekaligus untuk mengoptimalkan kinerja. Silakan ketik nama pihak, NIK, atau kriteria lainnya di kolom pencarian.
+            Menampilkan data pihak prinsipal perkara SIPP (Penggugat, Tergugat, Intervensi, dan Turut Tergugat). Saksi persidangan otomatis disaring. Silakan ketik nama pihak, NIK, atau kriteria lainnya di kolom pencarian.
           </p>
         </div>
 

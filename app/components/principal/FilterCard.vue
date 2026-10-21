@@ -111,7 +111,7 @@
       <div class="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
         <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-primary-500 shrink-0" />
         <span>
-          Basis data SIPP berisi <strong>> 120.000 pihak</strong>. Data akan dimuat secara otomatis setelah Anda memasukkan kata kunci pencarian.
+          Menampilkan data pihak prinsipal perkara SIPP (saksi persidangan otomatis disaring). Masukkan kata kunci untuk mulai mencari.
         </span>
       </div>
     </form>
