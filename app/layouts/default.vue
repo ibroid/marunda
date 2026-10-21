@@ -376,6 +376,79 @@
           </NuxtLink>
         </UTooltip>
 
+        <div class="pt-2 pb-1">
+          <div class="border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+
+        <!-- Sub Menu Principal & Advokat (Tepat di atas Keuangan Harian) -->
+        <!-- Mode Collapsed (Mini): Gunakan Dropdown Popup -->
+        <div v-if="effectiveCollapsed">
+          <UDropdown
+            :items="principalDropdownItems"
+            :popper="{ placement: 'right-start' }"
+            class="w-full"
+          >
+            <UTooltip text="Principal & Advokat" :popper="{ placement: 'right' }" class="w-full">
+              <button
+                type="button"
+                class="w-full flex items-center justify-center p-2.5 rounded-lg text-sm font-medium transition-colors"
+                :class="[
+                  isPrincipalRoute
+                    ? 'bg-primary-50 text-primary-800 dark:bg-primary-950 dark:text-primary-300 ring-1 ring-primary-500/20'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                ]"
+              >
+                <UIcon name="i-heroicons-user-group" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
+              </button>
+            </UTooltip>
+          </UDropdown>
+        </div>
+
+        <!-- Mode Extended (Full): Accordion Biasa -->
+        <div v-else class="space-y-1">
+          <button
+            type="button"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            :class="[
+              isPrincipalRoute
+                ? 'bg-primary-50/70 text-primary-800 dark:bg-primary-950/70 dark:text-primary-300'
+                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+            ]"
+            @click="isPrincipalOpen = !isPrincipalOpen"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="i-heroicons-user-group" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
+              <span class="truncate">Principal & Advokat</span>
+            </div>
+            <UIcon
+              :name="isPrincipalOpen ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'"
+              class="w-4 h-4 text-gray-400 transition-transform shrink-0"
+            />
+          </button>
+
+          <!-- Submenu Items -->
+          <div v-show="isPrincipalOpen" class="pl-3 pr-1 py-1 space-y-1 border-l-2 border-primary-200 dark:border-primary-900 ml-4">
+            <NuxtLink
+              v-for="sub in principalSubItems"
+              :key="sub.to"
+              :to="sub.to"
+              class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              :class="[
+                $route.path === sub.to
+                  ? 'bg-primary-100 text-primary-900 font-semibold dark:bg-primary-900 dark:text-primary-100'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/60 dark:hover:text-gray-200'
+              ]"
+            >
+              <UIcon :name="sub.icon" class="w-4 h-4 shrink-0" />
+              <span class="truncate">{{ sub.label }}</span>
+            </NuxtLink>
+          </div>
+        </div>
+
+        <div class="pt-2 pb-1">
+          <div class="border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+
         <!-- Sub Menu Keuangan Harian (13 Submenu) -->
         <!-- Mode Collapsed (Mini): Gunakan Dropdown Popup -->
         <div v-if="effectiveCollapsed">
@@ -423,7 +496,7 @@
           </button>
 
           <!-- Submenu Items (13 Menu Keuangan Harian) -->
-          <div v-show="isKeuanganOpen" class="pl-3 pr-1 py-1 space-y-1 border-l-2 border-primary-200 dark:border-primary-900 ml-4 max-h-72 overflow-y-auto">
+          <div v-show="isKeuanganOpen" class="pl-3 pr-1 py-1 space-y-1 border-l-2 border-primary-200 dark:border-primary-900 ml-4">
             <NuxtLink
               v-for="sub in keuanganSubItems"
               :key="sub.to"
@@ -852,6 +925,32 @@ const geografiDropdownItems = computed(() => [
   }))
 ])
 
+// State untuk toggle accordion sub-menu principal & advokat
+const isPrincipalOpen = ref(true)
+
+const isPrincipalRoute = computed(() => {
+  return route.path.startsWith('/principal') || route.path.startsWith('/advokat')
+})
+
+const principalSubItems = [
+  { label: 'Principal', to: '/principal', icon: 'i-heroicons-user' },
+  { label: 'Advokat', to: '/advokat', icon: 'i-heroicons-briefcase' }
+]
+
+const principalDropdownItems = computed(() => [
+  [
+    {
+      label: 'Principal & Advokat',
+      disabled: true
+    }
+  ],
+  principalSubItems.map(sub => ({
+    label: sub.label,
+    icon: sub.icon,
+    to: sub.to
+  }))
+])
+
 // State untuk toggle accordion sub-menu keuangan harian
 const isKeuanganOpen = ref(true)
 
@@ -925,6 +1024,8 @@ const currentTitle = computed(() => {
   if (route.path === '/statistik-geografi/faktor-perceraian' || route.path.startsWith('/faktor-perceraian')) return 'Statistik Geografi - Faktor Perceraian'
   if (route.path === '/statistik-geografi/jenis-perkara') return 'Statistik Geografi - Jenis Perkara'
   if (route.path === '/statistik-geografi/wilayah' || route.path.startsWith('/statistik-geografi')) return 'Statistik Geografi - Data Per Wilayah'
+  if (route.path === '/principal' || route.path.startsWith('/principal')) return 'Data Principal (Pihak Terdaftar SIPP)'
+  if (route.path === '/advokat' || route.path.startsWith('/advokat')) return 'Data Advokat & Kuasa Hukum SIPP'
   if (route.path.startsWith('/keuangan-harian')) {
     const sub = keuanganSubItems.find(item => item.to === route.path)
     return sub ? `Keuangan Harian - ${sub.label}` : 'Keuangan Harian'
