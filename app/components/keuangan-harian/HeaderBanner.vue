@@ -58,7 +58,7 @@ const props = defineProps({
   }
 })
 
-const { menus, selectedDate, triggerRefresh, formatDateLong } = useKeuanganHarian()
+const { menus, selectedDate, triggerRefresh, formatDateLong } = useKeuanganHarian(props.currentSlug)
 
 const currentMenu = computed(() => {
   return menus.find(m => m.slug === props.currentSlug) || menus[0]

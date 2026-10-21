@@ -113,7 +113,9 @@
 </template>
 
 <script setup>
-const { selectedDate, refreshSignal, formatRupiah, formatDate, formatDateLong, exportExcel } = useKeuanganHarian()
+provide('keuanganHarianSlug', 'transaksi')
+
+const { selectedDate, refreshSignal, formatRupiah, formatDate, formatDateLong, exportExcel } = useKeuanganHarian('transaksi')
 
 const { data, pending, refresh } = useLazyFetch('/api/keuangan-harian/transaksi', {
   server: false,

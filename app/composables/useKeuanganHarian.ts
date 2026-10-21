@@ -114,11 +114,40 @@ export const KEUANGAN_HARIAN_MENUS: KeuanganMenuItem[] = [
   }
 ]
 
-export const useKeuanganHarian = () => {
-  // Aturan user: default belum memilih tanggal (null / empty), jangan tampilkan apa-apa
-  const selectedDate = useState<string | null>('keuanganHarianSelectedDate', () => null)
-  const refreshSignal = useState<number>('keuanganHarianRefreshSignal', () => 0)
-  const filterKodePnbp = useState<string>('keuanganHarianFilterKodePnbp', () => '')
+export const useKeuanganHarian = (menuSlug?: string) => {
+  // Tentukan slug menu untuk mengisolasi state per-menu (tidak saling berbagi antar menu)
+  let slugKey = menuSlug
+
+  if (!slugKey) {
+    try {
+      const injectedSlug = inject<string | null>('keuanganHarianSlug', null)
+      if (injectedSlug) {
+        slugKey = injectedSlug
+      }
+    } catch {
+      // ignore jika di luar konteks component
+    }
+  }
+
+  if (!slugKey) {
+    try {
+      const route = useRoute()
+      const parts = (route?.path || '').split('/').filter(Boolean)
+      if (parts[0] === 'keuangan-harian' && parts[1]) {
+        slugKey = parts[1]
+      }
+    } catch {
+      // ignore jika di luar konteks router
+    }
+  }
+
+  slugKey = slugKey || 'default'
+
+  // Aturan: state tanggal terisolasi per menu, TIDAK berbagi antar menu keuangan.
+  // Default belum memilih tanggal (null), jangan tampilkan apa-apa sampai user memilih tanggal.
+  const selectedDate = useState<string | null>(`keuanganHarianSelectedDate_${slugKey}`, () => null)
+  const refreshSignal = useState<number>(`keuanganHarianRefreshSignal_${slugKey}`, () => 0)
+  const filterKodePnbp = useState<string>(`keuanganHarianFilterKodePnbp_${slugKey}`, () => '')
 
   const triggerRefresh = () => {
     refreshSignal.value++

@@ -238,8 +238,28 @@
                 </td>
               </tr>
 
+              <!-- Error State -->
+              <tr v-if="!isLoading && errorMessage">
+                <td colspan="6" class="py-12 text-center text-xs">
+                  <div class="flex flex-col items-center justify-center gap-2">
+                    <UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-red-500" />
+                    <span class="text-red-600 dark:text-red-400 font-medium">{{ errorMessage }}</span>
+                    <UButton
+                      size="2xs"
+                      color="red"
+                      variant="soft"
+                      icon="i-heroicons-arrow-path"
+                      class="mt-1"
+                      @click="loadDetailData(true)"
+                    >
+                      Coba Lagi
+                    </UButton>
+                  </div>
+                </td>
+              </tr>
+
               <!-- Empty State -->
-              <tr v-if="!isLoading && !daftarPerkara.length">
+              <tr v-else-if="!isLoading && !daftarPerkara.length">
                 <td colspan="6" class="py-12 text-center text-gray-400 text-xs">
                   <div class="flex flex-col items-center justify-center gap-2">
                     <UIcon name="i-heroicons-check-circle" class="w-8 h-8 text-emerald-500" />
@@ -310,6 +330,7 @@ const searchInput = ref('')
 const daftarPerkara = ref([])
 const totalCases = ref(0)
 const isLoading = ref(false)
+const errorMessage = ref('')
 let searchTimeout = null
 
 // Konfigurasi Header Modal berdasarkan tipe atensi
@@ -375,6 +396,7 @@ const headerConfig = computed(() => {
 // Fungsi memuat data dari API detail
 async function loadDetailData(showOverlay = true) {
   if (showOverlay) isLoading.value = true
+  errorMessage.value = ''
   try {
     const res = await $fetch('/api/dashboard/eksekutif/atensi/detail', {
       query: {
@@ -387,22 +409,46 @@ async function loadDetailData(showOverlay = true) {
     })
     if (res?.success) {
       daftarPerkara.value = res.daftar || []
-      totalCases.value = res.total || 0
+      totalCases.value = Number(res.total ?? 0)
+    } else {
+      daftarPerkara.value = []
+      totalCases.value = 0
+      errorMessage.value = res?.message || 'Gagal memuat rincian perkara'
     }
   } catch (err) {
+    daftarPerkara.value = []
+    totalCases.value = 0
+    errorMessage.value = err?.data?.message || err?.message || 'Terjadi kesalahan saat memuat rincian data perkara'
     console.error('Gagal memuat detail atensi eksekutif:', err)
   } finally {
     isLoading.value = false
   }
 }
 
+// Reset & muat data saat modal dibuka atau tipe atensi berganti
+function resetAndLoad() {
+  page.value = 1
+  searchInput.value = ''
+  daftarPerkara.value = []
+  errorMessage.value = ''
+  totalCases.value = modalAtensiTotal.value || 0
+  loadDetailData(true)
+}
+
 // Watchers
 watch(isModalAtensiOpen, (isOpen) => {
   if (isOpen) {
-    page.value = 1
+    resetAndLoad()
+  } else {
+    daftarPerkara.value = []
+    errorMessage.value = ''
     searchInput.value = ''
-    totalCases.value = modalAtensiTotal.value || 0
-    loadDetailData(true)
+  }
+})
+
+watch(modalAtensiType, () => {
+  if (isModalAtensiOpen.value) {
+    resetAndLoad()
   }
 })
 
@@ -423,8 +469,7 @@ watch(searchInput, () => {
 
 watch(selectedYear, () => {
   if (isModalAtensiOpen.value) {
-    page.value = 1
-    loadDetailData(true)
+    resetAndLoad()
   }
 })
 </script>

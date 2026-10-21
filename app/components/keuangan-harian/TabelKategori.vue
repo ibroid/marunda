@@ -183,6 +183,8 @@ const props = defineProps({
   }
 })
 
+provide('keuanganHarianSlug', props.slug)
+
 const {
   selectedDate,
   refreshSignal,
@@ -191,7 +193,7 @@ const {
   formatDate,
   formatDateLong,
   exportExcel
-} = useKeuanganHarian()
+} = useKeuanganHarian(props.slug)
 
 // Hitung jumlah kolom dinamis untuk colspan
 const colSpanCount = computed(() => {

@@ -30,6 +30,8 @@ export default defineEventHandler(async (event) => {
 
     let countQuery = ''
     let listQuery = ''
+    let whereClause = ''
+    let extraSelect = ''
 
     if (type === 'redaksi_materai_tanpa_putusan') {
       const redaksiWhere = `
@@ -150,7 +152,7 @@ export default defineEventHandler(async (event) => {
 
     if (type !== 'redaksi_materai_tanpa_putusan') {
       countQuery = `
-        SELECT COUNT(pp.perkara_id) AS total
+        SELECT COUNT(DISTINCT pp.perkara_id) AS total
         FROM perkara_putusan pp
         JOIN perkara p ON p.perkara_id = pp.perkara_id
         LEFT JOIN perkara_penetapan pt ON p.perkara_id = pt.perkara_id
@@ -168,14 +170,22 @@ export default defineEventHandler(async (event) => {
           pp.tanggal_minutasi,
           pp.amar_putusan_dok,
           DATEDIFF(CURDATE(), pp.tanggal_putusan) AS selisih_hari,
-          pt.majelis_hakim_nama,
-          COALESCE(pn.nama_gelar, pt.panitera_pengganti_text) AS panitera_pengganti_nama,
+          MAX(pt.majelis_hakim_nama) AS majelis_hakim_nama,
+          COALESCE(MAX(pn.nama_gelar), MAX(pt.panitera_pengganti_text)) AS panitera_pengganti_nama,
           ${extraSelect}
         FROM perkara_putusan pp
         JOIN perkara p ON p.perkara_id = pp.perkara_id
         LEFT JOIN perkara_penetapan pt ON p.perkara_id = pt.perkara_id
         LEFT JOIN panitera_pn pn ON pn.id = pt.panitera_pengganti_id
         ${whereClause}
+        GROUP BY
+          p.perkara_id,
+          p.nomor_perkara,
+          p.jenis_perkara_nama,
+          p.para_pihak,
+          pp.tanggal_putusan,
+          pp.tanggal_minutasi,
+          pp.amar_putusan_dok
         ORDER BY pp.tanggal_putusan DESC, pp.perkara_id DESC
         LIMIT ${limit} OFFSET ${offset}
       `

@@ -192,7 +192,9 @@
 </template>
 
 <script setup>
-const { selectedDate, refreshSignal, formatRupiah, formatDateLong, exportExcel } = useKeuanganHarian()
+provide('keuanganHarianSlug', 'rekap')
+
+const { selectedDate, refreshSignal, formatRupiah, formatDateLong, exportExcel } = useKeuanganHarian('rekap')
 
 const { data, pending, refresh } = useLazyFetch('/api/keuangan-harian/rekap', {
   server: false,
