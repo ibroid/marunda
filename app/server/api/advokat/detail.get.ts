@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const [advokatRows, cases] = await Promise.all([
+    const [advokatRows, totalPerkaraRows] = await Promise.all([
       // 1. Profil lengkap advokat
       prisma.$queryRawUnsafe<any[]>(`
         SELECT
@@ -42,33 +42,11 @@ export default defineEventHandler(async (event) => {
         LIMIT 1
       `),
 
-      // 2. Daftar perkara yang ditangani advokat ini
+      // 2. Total agregat perkara yang ditangani (cepat)
       prisma.$queryRawUnsafe<any[]>(`
-        SELECT
-          pp.id AS perkara_pengacara_id,
-          pp.perkara_id,
-          p.nomor_perkara,
-          DATE_FORMAT(p.tanggal_pendaftaran, '%Y-%m-%d') AS tanggal_pendaftaran,
-          p.jenis_perkara_nama,
-          pp.pihak_ke,
-          CASE pp.pihak_ke
-            WHEN 1 THEN 'Penggugat / Pemohon'
-            WHEN 2 THEN 'Tergugat / Termohon'
-            ELSE CONCAT('Pihak ke-', pp.pihak_ke)
-          END AS pihak_ke_text,
-          pp.nomor_kuasa,
-          DATE_FORMAT(pp.tanggal_kuasa, '%Y-%m-%d') AS tanggal_kuasa,
-          pp.aktif,
-          DATE_FORMAT(pput.tanggal_putusan, '%Y-%m-%d') AS tanggal_putusan,
-          sp.nama AS status_putusan_nama,
-          p.proses_terakhir_text,
-          p.tahapan_terakhir_text
-        FROM perkara_pengacara pp
-        JOIN perkara p ON p.perkara_id = pp.perkara_id
-        LEFT JOIN perkara_putusan pput ON pput.perkara_id = p.perkara_id
-        LEFT JOIN status_putusan sp ON sp.id = pput.status_putusan_id
-        WHERE pp.pengacara_id = ${id}
-        ORDER BY p.tanggal_pendaftaran DESC, pp.id DESC
+        SELECT COUNT(id) AS total
+        FROM perkara_pengacara
+        WHERE pengacara_id = ${id}
       `)
     ])
 
@@ -79,10 +57,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const advokat = advokatRows[0]
+    advokat.total_perkara = Number(totalPerkaraRows[0]?.total || 0)
+
     return serializeBigInt({
       success: true,
-      advokat: advokatRows[0],
-      perkara: cases
+      advokat
     })
   } catch (error: any) {
     console.error('Error fetching advokat detail:', error)

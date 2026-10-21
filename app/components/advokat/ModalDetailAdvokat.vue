@@ -171,77 +171,178 @@
           <!-- Tab 3: Daftar Perkara Kuasa Hukum -->
           <template #perkara>
             <div class="pt-4 space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-gray-500">
-                  Menangani <strong>{{ detailData?.perkara?.length || 0 }} perkara</strong> di SIPP
-                </span>
+              <!-- Header kontrol & filter perkara -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-gray-500">
+                    Menangani <strong>{{ formatNumber(perkaraData?.total ?? detailData?.advokat?.total_perkara ?? 0) }} perkara</strong> di SIPP
+                  </span>
+                  <UBadge
+                    v-if="isPerkaraLoading"
+                    color="amber"
+                    variant="subtle"
+                    size="xs"
+                    class="text-[10px] px-1.5 py-0 inline-flex items-center gap-1"
+                  >
+                    <UIcon name="i-heroicons-arrow-path" class="w-2.5 h-2.5 animate-spin text-amber-500" />
+                    <span>Memuat...</span>
+                  </UBadge>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <!-- Pencarian nomor perkara cepat -->
+                  <div class="w-44 sm:w-52">
+                    <UInput
+                      v-model="perkaraSearch"
+                      icon="i-heroicons-magnifying-glass"
+                      size="xs"
+                      placeholder="Cari no. perkara..."
+                      :ui="{ icon: { leading: { pointer: '' } } }"
+                      @update:model-value="perkaraPage = 1"
+                    >
+                      <template #trailing>
+                        <UButton
+                          v-if="perkaraSearch"
+                          color="gray"
+                          variant="link"
+                          icon="i-heroicons-x-mark"
+                          :padded="false"
+                          size="2xs"
+                          @click="perkaraSearch = ''; perkaraPage = 1"
+                        />
+                      </template>
+                    </UInput>
+                  </div>
+
+                  <!-- Limit selector -->
+                  <USelect
+                    v-model="perkaraLimit"
+                    :options="[
+                      { label: '5 / hal', value: 5 },
+                      { label: '10 / hal', value: 10 },
+                      { label: '20 / hal', value: 20 },
+                      { label: '50 / hal', value: 50 }
+                    ]"
+                    size="xs"
+                    class="w-24 shrink-0"
+                    @change="perkaraPage = 1"
+                  />
+                </div>
               </div>
 
-              <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden max-h-96 overflow-y-auto">
-                <table class="w-full text-left text-xs divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead class="bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 sticky top-0">
-                    <tr>
-                      <th class="px-3 py-2.5 w-10 text-center">No</th>
-                      <th class="px-3 py-2.5">Nomor Perkara</th>
-                      <th class="px-3 py-2.5">Tanggal Daftar</th>
-                      <th class="px-3 py-2.5">Jenis Perkara</th>
-                      <th class="px-3 py-2.5">Posisi Kuasa</th>
-                      <th class="px-3 py-2.5">Nomor & Tanggal Kuasa</th>
-                      <th class="px-3 py-2.5">Status Putusan</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    <tr
-                      v-for="(cas, cIdx) in detailData?.perkara || []"
-                      :key="cas.perkara_pengacara_id"
-                      class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40"
-                    >
-                      <td class="px-3 py-2 text-center text-gray-400">{{ cIdx + 1 }}</td>
-                      <td class="px-3 py-2 font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                        {{ cas.nomor_perkara }}
-                      </td>
-                      <td class="px-3 py-2 text-gray-500 whitespace-nowrap">
-                        {{ formatDate(cas.tanggal_pendaftaran) }}
-                      </td>
-                      <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
-                        {{ cas.jenis_perkara_nama }}
-                      </td>
-                      <td class="px-3 py-2">
-                        <UBadge
-                          :color="Number(cas.pihak_ke) === 1 ? 'primary' : 'rose'"
-                          variant="subtle"
-                          size="xs"
-                          class="text-[10px] px-1.5 py-0"
-                        >
-                          {{ cas.pihak_ke_text }}
-                        </UBadge>
-                      </td>
-                      <td class="px-3 py-2 text-gray-600 dark:text-gray-400">
-                        <span v-if="cas.nomor_kuasa" class="font-mono">{{ cas.nomor_kuasa }}</span>
-                        <span v-else class="text-gray-400">-</span>
-                        <span v-if="cas.tanggal_kuasa" class="block text-[10px] text-gray-400">
-                          Tgl: {{ formatDate(cas.tanggal_kuasa) }}
-                        </span>
-                      </td>
-                      <td class="px-3 py-2">
-                        <span v-if="cas.tanggal_putusan" class="text-emerald-600 dark:text-emerald-400 font-medium">
-                          Putus: {{ formatDate(cas.tanggal_putusan) }}
-                          <span v-if="cas.status_putusan_nama" class="block text-[10px] text-gray-400">
-                            ({{ cas.status_putusan_nama }})
+              <!-- Tabel Data Perkara -->
+              <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                  <table class="w-full text-left text-xs divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 sticky top-0 z-10">
+                      <tr>
+                        <th class="px-3 py-2.5 w-10 text-center">No</th>
+                        <th class="px-3 py-2.5 whitespace-nowrap">Nomor Perkara</th>
+                        <th class="px-3 py-2.5 whitespace-nowrap">Tanggal Daftar</th>
+                        <th class="px-3 py-2.5">Jenis Perkara</th>
+                        <th class="px-3 py-2.5">Posisi Kuasa</th>
+                        <th class="px-3 py-2.5">Nomor & Tanggal Kuasa</th>
+                        <th class="px-3 py-2.5">Status Putusan</th>
+                      </tr>
+                    </thead>
+
+                    <!-- Skeleton Rows saat loading perkara -->
+                    <tbody v-if="isPerkaraLoading" class="divide-y divide-gray-100 dark:divide-gray-800">
+                      <tr v-for="i in Math.min(Number(perkaraLimit) || 10, 5)" :key="i" class="animate-pulse">
+                        <td class="px-3 py-2 text-center"><USkeleton class="h-3 w-4 mx-auto" /></td>
+                        <td class="px-3 py-2"><USkeleton class="h-3.5 w-32" /></td>
+                        <td class="px-3 py-2"><USkeleton class="h-3 w-20" /></td>
+                        <td class="px-3 py-2"><USkeleton class="h-3 w-28" /></td>
+                        <td class="px-3 py-2"><USkeleton class="h-4 w-20 rounded" /></td>
+                        <td class="px-3 py-2"><USkeleton class="h-3 w-24" /></td>
+                        <td class="px-3 py-2"><USkeleton class="h-3 w-24" /></td>
+                      </tr>
+                    </tbody>
+
+                    <!-- Loaded Rows -->
+                    <tbody v-else class="divide-y divide-gray-100 dark:divide-gray-800">
+                      <tr
+                        v-for="(cas, cIdx) in perkaraData?.data || []"
+                        :key="cas.perkara_pengacara_id"
+                        class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40"
+                      >
+                        <td class="px-3 py-2 text-center text-gray-400">
+                          {{ (perkaraPage - 1) * perkaraLimit + cIdx + 1 }}
+                        </td>
+                        <td class="px-3 py-2 font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                          {{ cas.nomor_perkara }}
+                        </td>
+                        <td class="px-3 py-2 text-gray-500 whitespace-nowrap">
+                          {{ formatDate(cas.tanggal_pendaftaran) }}
+                        </td>
+                        <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
+                          {{ cas.jenis_perkara_nama }}
+                        </td>
+                        <td class="px-3 py-2">
+                          <UBadge
+                            :color="Number(cas.pihak_ke) === 1 ? 'primary' : 'rose'"
+                            variant="subtle"
+                            size="xs"
+                            class="text-[10px] px-1.5 py-0"
+                          >
+                            {{ cas.pihak_ke_text }}
+                          </UBadge>
+                        </td>
+                        <td class="px-3 py-2 text-gray-600 dark:text-gray-400">
+                          <span v-if="cas.nomor_kuasa" class="font-mono">{{ cas.nomor_kuasa }}</span>
+                          <span v-else class="text-gray-400">-</span>
+                          <span v-if="cas.tanggal_kuasa" class="block text-[10px] text-gray-400">
+                            Tgl: {{ formatDate(cas.tanggal_kuasa) }}
                           </span>
-                        </span>
-                        <span v-else class="text-amber-600 dark:text-amber-400 text-[11px]">
-                          {{ cas.proses_terakhir_text || 'Sedang Berjalan' }}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr v-if="!detailData?.perkara?.length">
-                      <td colspan="7" class="px-3 py-6 text-center text-gray-400">
-                        Belum ada perkara kuasa yang tercatat atas nama advokat ini.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                        </td>
+                        <td class="px-3 py-2">
+                          <span v-if="cas.tanggal_putusan" class="text-emerald-600 dark:text-emerald-400 font-medium">
+                            Putus: {{ formatDate(cas.tanggal_putusan) }}
+                            <span v-if="cas.status_putusan_nama" class="block text-[10px] text-gray-400">
+                              ({{ cas.status_putusan_nama }})
+                            </span>
+                          </span>
+                          <span v-else class="text-amber-600 dark:text-amber-400 text-[11px]">
+                            {{ cas.proses_terakhir_text || 'Sedang Berjalan' }}
+                          </span>
+                        </td>
+                      </tr>
+
+                      <!-- Jika tidak ada data -->
+                      <tr v-if="!perkaraData?.data?.length">
+                        <td colspan="7" class="px-3 py-8 text-center text-gray-400">
+                          <div class="space-y-1">
+                            <UIcon name="i-heroicons-folder-open" class="w-6 h-6 mx-auto text-gray-300 dark:text-gray-600" />
+                            <p class="text-xs">
+                              {{ perkaraSearch ? 'Tidak ada perkara yang cocok dengan kata kunci pencarian.' : 'Belum ada perkara kuasa yang tercatat atas nama advokat ini.' }}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Footer Paginasi Perkara -->
+                <div
+                  v-if="perkaraData?.total > 0"
+                  class="px-3 py-2 bg-gray-50 dark:bg-gray-800/40 border-t border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                >
+                  <span class="text-[11px] text-gray-500">
+                    Menampilkan <strong>{{ (perkaraPage - 1) * perkaraLimit + 1 }}</strong> -
+                    <strong>{{ Math.min(perkaraPage * perkaraLimit, perkaraData.total) }}</strong> dari
+                    <strong>{{ formatNumber(perkaraData.total) }}</strong> perkara
+                  </span>
+
+                  <UPagination
+                    v-if="perkaraData.total > perkaraLimit"
+                    v-model="perkaraPage"
+                    :total="perkaraData.total"
+                    :page-count="perkaraLimit"
+                    size="xs"
+                    :ui="{ wrapper: 'flex items-center gap-1' }"
+                  />
+                </div>
               </div>
             </div>
           </template>
@@ -310,6 +411,7 @@ const tabItems = [
   { label: 'Audit Sistem', icon: 'i-heroicons-clock', slot: 'audit' }
 ]
 
+// 1. Data profil advokat (instan & cepat)
 const { data: detailData, pending: isLoading } = useLazyFetch('/api/advokat/detail', {
   server: false,
   query: computed(() => ({ id: selectedAdvokatId.value })),
@@ -317,4 +419,39 @@ const { data: detailData, pending: isLoading } = useLazyFetch('/api/advokat/deta
   immediate: false,
   default: () => null
 })
+
+// 2. Data perkara advokat terpaginasi (tidak membebani database)
+const perkaraPage = ref(1)
+const perkaraLimit = ref(10)
+const perkaraSearch = ref('')
+
+const perkaraQueryParams = computed(() => ({
+  id: selectedAdvokatId.value,
+  page: perkaraPage.value,
+  limit: perkaraLimit.value,
+  search: perkaraSearch.value
+}))
+
+const {
+  data: perkaraData,
+  pending: isPerkaraLoading,
+  refresh: refreshPerkara
+} = useLazyFetch('/api/advokat/perkara', {
+  server: false,
+  query: perkaraQueryParams,
+  watch: [selectedAdvokatId, perkaraPage, perkaraLimit, perkaraSearch],
+  immediate: false,
+  default: () => null
+})
+
+// Reset paginasi & filter pencarian perkara ketika ganti advokat / modal dibuka
+watch(selectedAdvokatId, () => {
+  perkaraPage.value = 1
+  perkaraSearch.value = ''
+})
+
+const formatNumber = (val) => {
+  if (!val) return '0'
+  return new Intl.NumberFormat('id-ID').format(Number(val))
+}
 </script>
