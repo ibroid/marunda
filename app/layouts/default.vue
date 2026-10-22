@@ -1036,7 +1036,8 @@ const isLaporanRoute = computed(() => {
 })
 
 const laporanSubItems = [
-  { label: 'Keadaan Perkara (LIPA 1)', to: '/laporan/lipa-1', icon: 'i-heroicons-document-text' },
+  { label: '(LIPA 1) Keadaan Perkara', to: '/laporan/lipa-1', icon: 'i-heroicons-document-text' },
+  { label: '(LIPA 2) Laporan Banding', to: '/laporan/lipa-2', icon: 'i-heroicons-scale' },
   { label: 'Katalog Laporan LIPA', to: '/laporan', icon: 'i-heroicons-squares-2x2' }
 ]
 
@@ -1092,7 +1093,8 @@ const currentTitle = computed(() => {
     const sub = keuanganSubItems.find(item => item.to === route.path)
     return sub ? `Keuangan Harian - ${sub.label}` : 'Keuangan Harian'
   }
-  if (route.path === '/laporan/lipa-1') return 'Laporan Keadaan Perkara (LIPA 1)'
+  if (route.path === '/laporan/lipa-1') return '(LIPA 1) Keadaan Perkara'
+  if (route.path === '/laporan/lipa-2') return '(LIPA 2) Laporan Banding'
   if (route.path === '/laporan') return 'Laporan Perkara (LIPA)'
   const match = allNavItems.find(item => item.to === route.path)
   return match ? match.label : 'Monitoring SIPP'
