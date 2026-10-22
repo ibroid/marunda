@@ -1038,6 +1038,8 @@ const isLaporanRoute = computed(() => {
 const laporanSubItems = [
   { label: '(LIPA 1) Keadaan Perkara', to: '/laporan/lipa-1', icon: 'i-heroicons-document-text' },
   { label: '(LIPA 2) Laporan Banding', to: '/laporan/lipa-2', icon: 'i-heroicons-scale' },
+  { label: '(LIPA 3) Laporan Kasasi', to: '/laporan/lipa-3', icon: 'i-heroicons-building-library' },
+  { label: '(LIPA 4) Laporan PK', to: '/laporan/lipa-4', icon: 'i-heroicons-document-magnifying-glass' },
   { label: 'Katalog Laporan LIPA', to: '/laporan', icon: 'i-heroicons-squares-2x2' }
 ]
 
