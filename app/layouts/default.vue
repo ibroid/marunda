@@ -514,31 +514,70 @@
           </div>
         </div>
 
-        <!-- Navigation Links Utama (Bawah: Laporan Perkara LIPA) -->
-        <UTooltip
-          v-for="item in navItemsBottom"
-          :key="item.to"
-          :text="item.label"
-          :popper="{ placement: 'right' }"
-          :prevent="!effectiveCollapsed"
-          class="w-full"
-        >
-          <NuxtLink
-            :to="item.to"
-            class="flex items-center rounded-lg text-sm font-medium transition-colors"
-            :class="[
-              effectiveCollapsed
-                ? 'justify-center p-2.5'
-                : 'gap-3 px-3 py-2',
-              $route.path === item.to
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300 ring-1 ring-primary-500/20'
-                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-            ]"
+        <!-- Sub Menu Laporan Perkara (LIPA) -->
+        <!-- Mode Collapsed (Mini): Gunakan Dropdown Popup -->
+        <div v-if="effectiveCollapsed">
+          <UDropdown
+            :items="laporanDropdownItems"
+            :popper="{ placement: 'right-start' }"
+            class="w-full"
           >
-            <UIcon :name="item.icon" class="w-5 h-5 shrink-0" />
-            <span v-show="!effectiveCollapsed" class="truncate">{{ item.label }}</span>
-          </NuxtLink>
-        </UTooltip>
+            <UTooltip text="Laporan Perkara (LIPA)" :popper="{ placement: 'right' }" class="w-full">
+              <button
+                type="button"
+                class="w-full flex items-center justify-center p-2.5 rounded-lg text-sm font-medium transition-colors"
+                :class="[
+                  isLaporanRoute
+                    ? 'bg-primary-50 text-primary-800 dark:bg-primary-950 dark:text-primary-300 ring-1 ring-primary-500/20'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                ]"
+              >
+                <UIcon name="i-heroicons-table-cells" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
+              </button>
+            </UTooltip>
+          </UDropdown>
+        </div>
+
+        <!-- Mode Extended (Full): Accordion Biasa -->
+        <div v-else class="space-y-1">
+          <button
+            type="button"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            :class="[
+              isLaporanRoute
+                ? 'bg-primary-50/70 text-primary-800 dark:bg-primary-950/70 dark:text-primary-300'
+                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+            ]"
+            @click="isLaporanOpen = !isLaporanOpen"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="i-heroicons-table-cells" class="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0" />
+              <span class="truncate">Laporan Perkara (LIPA)</span>
+            </div>
+            <UIcon
+              :name="isLaporanOpen ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'"
+              class="w-4 h-4 text-gray-400 transition-transform shrink-0"
+            />
+          </button>
+
+          <!-- Submenu Items -->
+          <div v-show="isLaporanOpen" class="pl-3 pr-1 py-1 space-y-1 border-l-2 border-primary-200 dark:border-primary-900 ml-4">
+            <NuxtLink
+              v-for="sub in laporanSubItems"
+              :key="sub.to"
+              :to="sub.to"
+              class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              :class="[
+                $route.path === sub.to
+                  ? 'bg-primary-100 text-primary-900 font-semibold dark:bg-primary-900 dark:text-primary-100'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/60 dark:hover:text-gray-200'
+              ]"
+            >
+              <UIcon :name="sub.icon" class="w-4 h-4 shrink-0" />
+              <span class="truncate">{{ sub.label }}</span>
+            </NuxtLink>
+          </div>
+        </div>
       </nav>
 
       <!-- Sidebar Footer -->
@@ -989,6 +1028,32 @@ const keuanganDropdownItems = computed(() => [
   }))
 ])
 
+// State untuk toggle accordion sub-menu Laporan Perkara (LIPA)
+const isLaporanOpen = ref(true)
+
+const isLaporanRoute = computed(() => {
+  return route.path.startsWith('/laporan')
+})
+
+const laporanSubItems = [
+  { label: 'Keadaan Perkara (LIPA 1)', to: '/laporan/lipa-1', icon: 'i-heroicons-document-text' },
+  { label: 'Katalog Laporan LIPA', to: '/laporan', icon: 'i-heroicons-squares-2x2' }
+]
+
+const laporanDropdownItems = computed(() => [
+  [
+    {
+      label: 'Laporan Perkara (LIPA)',
+      disabled: true
+    }
+  ],
+  laporanSubItems.map(sub => ({
+    label: sub.label,
+    icon: sub.icon,
+    to: sub.to
+  }))
+])
+
 const navItemsTop = [
   { label: 'Statistik e-Court', to: '/ecourt', icon: 'i-heroicons-globe-alt' },
   { label: 'Raport & Kinerja SIPP', to: '/kinerja', icon: 'i-heroicons-trophy' },
@@ -998,11 +1063,7 @@ const navItemsTop = [
   { label: 'Buku Register Digital', to: '/register', icon: 'i-heroicons-book-open' }
 ]
 
-const navItemsBottom = [
-  { label: 'Laporan Perkara (LIPA)', to: '/laporan', icon: 'i-heroicons-table-cells' }
-]
-
-const allNavItems = [...navItemsTop, ...navItemsBottom]
+const allNavItems = [...navItemsTop]
 
 const currentTitle = computed(() => {
   if (route.path === '/' || route.path === '/dashboard') return 'Dashboard Eksekutif'
@@ -1031,6 +1092,8 @@ const currentTitle = computed(() => {
     const sub = keuanganSubItems.find(item => item.to === route.path)
     return sub ? `Keuangan Harian - ${sub.label}` : 'Keuangan Harian'
   }
+  if (route.path === '/laporan/lipa-1') return 'Laporan Keadaan Perkara (LIPA 1)'
+  if (route.path === '/laporan') return 'Laporan Perkara (LIPA)'
   const match = allNavItems.find(item => item.to === route.path)
   return match ? match.label : 'Monitoring SIPP'
 })
