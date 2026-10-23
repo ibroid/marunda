@@ -247,6 +247,112 @@ export default defineEventHandler(async (event) => {
       }))
 
       rows = rowsData
+    } else if (jenis === 'lipa_6') {
+      // LIPA 6: Laporan Kegiatan Hakim
+      columns = [
+        { key: 'no', label: 'No', align: 'center' },
+        { key: 'nama_hakim', label: 'Nama Hakim/Majelis', align: 'left' },
+        { key: 'sisa_lalu_g', label: 'Sisa Lalu (G)', align: 'center', format: 'number' },
+        { key: 'sisa_lalu_p', label: 'Sisa Lalu (P)', align: 'center', format: 'number' },
+        { key: 'tambah_g', label: 'Tambah (G)', align: 'center', format: 'number' },
+        { key: 'tambah_p', label: 'Tambah (P)', align: 'center', format: 'number' },
+        { key: 'jumlah_g', label: 'Jumlah (G)', align: 'center', format: 'number' },
+        { key: 'jumlah_p', label: 'Jumlah (P)', align: 'center', format: 'number' },
+        { key: 'putus_g', label: 'Diputus (G)', align: 'center', format: 'number' },
+        { key: 'putus_p', label: 'Diputus (P)', align: 'center', format: 'number' },
+        { key: 'sisa_ybs_g', label: 'Sisa Akhir (G)', align: 'center', format: 'number' },
+        { key: 'sisa_ybs_p', label: 'Sisa Akhir (P)', align: 'center', format: 'number' },
+        { key: 'minutir_g', label: 'Diminutir (G)', align: 'center', format: 'number' },
+        { key: 'minutir_p', label: 'Diminutir (P)', align: 'center', format: 'number' },
+        { key: 'belum_minutir_g', label: 'Belum Minutir (G)', align: 'center', format: 'number' },
+        { key: 'belum_minutir_p', label: 'Belum Minutir (P)', align: 'center', format: 'number' }
+      ]
+
+      const dbRows = await prisma.$queryRawUnsafe<any[]>(`
+        SELECT
+          h.id AS hakim_id,
+          h.nama_gelar AS nama_hakim,
+          SUM(CASE WHEN pt.penetapan_majelis_hakim < '${awalPeriode}'
+                    AND (pp.tanggal_putusan IS NULL OR pp.tanggal_putusan >= '${awalPeriode}')
+                    AND (p.alur_perkara_id IN (15, 17) OR p.nomor_perkara LIKE '%/Pdt.G/%')
+                   THEN 1 ELSE 0 END) AS sisa_lalu_g,
+          SUM(CASE WHEN pt.penetapan_majelis_hakim < '${awalPeriode}'
+                    AND (pp.tanggal_putusan IS NULL OR pp.tanggal_putusan >= '${awalPeriode}')
+                    AND (p.alur_perkara_id = 16 OR p.nomor_perkara LIKE '%/Pdt.P/%')
+                   THEN 1 ELSE 0 END) AS sisa_lalu_p,
+          SUM(CASE WHEN pt.penetapan_majelis_hakim >= '${awalPeriode}' AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id IN (15, 17) OR p.nomor_perkara LIKE '%/Pdt.G/%')
+                   THEN 1 ELSE 0 END) AS tambah_g,
+          SUM(CASE WHEN pt.penetapan_majelis_hakim >= '${awalPeriode}' AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id = 16 OR p.nomor_perkara LIKE '%/Pdt.P/%')
+                   THEN 1 ELSE 0 END) AS tambah_p,
+          SUM(CASE WHEN pp.tanggal_putusan >= '${awalPeriode}' AND pp.tanggal_putusan <= '${periode}-31'
+                    AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id IN (15, 17) OR p.nomor_perkara LIKE '%/Pdt.G/%')
+                   THEN 1 ELSE 0 END) AS putus_g,
+          SUM(CASE WHEN pp.tanggal_putusan >= '${awalPeriode}' AND pp.tanggal_putusan <= '${periode}-31'
+                    AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id = 16 OR p.nomor_perkara LIKE '%/Pdt.P/%')
+                   THEN 1 ELSE 0 END) AS putus_p,
+          SUM(CASE WHEN pp.tanggal_minutasi >= '${awalPeriode}' AND pp.tanggal_minutasi <= '${periode}-31'
+                    AND pp.tanggal_minutasi != '0000-00-00'
+                    AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id IN (15, 17) OR p.nomor_perkara LIKE '%/Pdt.G/%')
+                   THEN 1 ELSE 0 END) AS minutir_g,
+          SUM(CASE WHEN pp.tanggal_minutasi >= '${awalPeriode}' AND pp.tanggal_minutasi <= '${periode}-31'
+                    AND pp.tanggal_minutasi != '0000-00-00'
+                    AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id = 16 OR p.nomor_perkara LIKE '%/Pdt.P/%')
+                   THEN 1 ELSE 0 END) AS minutir_p,
+          SUM(CASE WHEN pp.tanggal_putusan IS NOT NULL AND pp.tanggal_putusan <= '${periode}-31'
+                    AND (pp.tanggal_minutasi IS NULL OR pp.tanggal_minutasi = '0000-00-00' OR pp.tanggal_minutasi > '${periode}-31')
+                    AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id IN (15, 17) OR p.nomor_perkara LIKE '%/Pdt.G/%')
+                   THEN 1 ELSE 0 END) AS belum_minutir_g,
+          SUM(CASE WHEN pp.tanggal_putusan IS NOT NULL AND pp.tanggal_putusan <= '${periode}-31'
+                    AND (pp.tanggal_minutasi IS NULL OR pp.tanggal_minutasi = '0000-00-00' OR pp.tanggal_minutasi > '${periode}-31')
+                    AND pt.penetapan_majelis_hakim <= '${periode}-31 23:59:59'
+                    AND (p.alur_perkara_id = 16 OR p.nomor_perkara LIKE '%/Pdt.P/%')
+                   THEN 1 ELSE 0 END) AS belum_minutir_p
+        FROM hakim_pn h
+        LEFT JOIN perkara_penetapan pt ON CAST(SUBSTRING_INDEX(pt.majelis_hakim_id, ',', 1) AS UNSIGNED) = h.id
+        LEFT JOIN perkara p ON p.perkara_id = pt.perkara_id
+        LEFT JOIN perkara_putusan pp ON pp.perkara_id = p.perkara_id
+        WHERE h.aktif = 'Y'
+        GROUP BY h.id, h.nama_gelar
+        ORDER BY h.id ASC
+      `).catch(() => [])
+
+      rows = dbRows.map((r, idx) => {
+        const sisa_lalu_g = Number(r.sisa_lalu_g || 0)
+        const sisa_lalu_p = Number(r.sisa_lalu_p || 0)
+        const tambah_g = Number(r.tambah_g || 0)
+        const tambah_p = Number(r.tambah_p || 0)
+        const jumlah_g = sisa_lalu_g + tambah_g
+        const jumlah_p = sisa_lalu_p + tambah_p
+        const putus_g = Number(r.putus_g || 0)
+        const putus_p = Number(r.putus_p || 0)
+        const sisa_ybs_g = Math.max(0, jumlah_g - putus_g)
+        const sisa_ybs_p = Math.max(0, jumlah_p - putus_p)
+        return {
+          no: idx + 1,
+          nama_hakim: r.nama_hakim || '-',
+          sisa_lalu_g,
+          sisa_lalu_p,
+          tambah_g,
+          tambah_p,
+          jumlah_g,
+          jumlah_p,
+          putus_g,
+          putus_p,
+          sisa_ybs_g,
+          sisa_ybs_p,
+          minutir_g: Number(r.minutir_g || 0),
+          minutir_p: Number(r.minutir_p || 0),
+          belum_minutir_g: Number(r.belum_minutir_g || 0),
+          belum_minutir_p: Number(r.belum_minutir_p || 0)
+        }
+      })
     } else if (jenis === 'lipa_10') {
       // LIPA 10: Faktor Perceraian
       columns = [
