@@ -1040,6 +1040,7 @@ const laporanSubItems = [
   { label: '(LIPA 2) Laporan Banding', to: '/laporan/lipa-2', icon: 'i-heroicons-scale' },
   { label: '(LIPA 3) Laporan Kasasi', to: '/laporan/lipa-3', icon: 'i-heroicons-building-library' },
   { label: '(LIPA 4) Laporan PK', to: '/laporan/lipa-4', icon: 'i-heroicons-document-magnifying-glass' },
+  { label: '(LIPA 5) Laporan Eksekusi', to: '/laporan/lipa-5', icon: 'i-heroicons-bolt' },
   { label: 'Katalog Laporan LIPA', to: '/laporan', icon: 'i-heroicons-squares-2x2' }
 ]
 
@@ -1097,6 +1098,9 @@ const currentTitle = computed(() => {
   }
   if (route.path === '/laporan/lipa-1') return '(LIPA 1) Keadaan Perkara'
   if (route.path === '/laporan/lipa-2') return '(LIPA 2) Laporan Banding'
+  if (route.path === '/laporan/lipa-3') return '(LIPA 3) Laporan Kasasi'
+  if (route.path === '/laporan/lipa-4') return '(LIPA 4) Laporan PK'
+  if (route.path === '/laporan/lipa-5') return '(LIPA 5) Laporan Eksekusi'
   if (route.path === '/laporan') return 'Laporan Perkara (LIPA)'
   const match = allNavItems.find(item => item.to === route.path)
   return match ? match.label : 'Monitoring SIPP'
