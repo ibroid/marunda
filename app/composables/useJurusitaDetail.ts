@@ -45,7 +45,7 @@ export const useJurusitaDetail = () => {
 
   const cleanHtml = (htmlStr?: string | null) => {
     if (!htmlStr) return '-'
-    return htmlStr.replace(/<br\s*\/?>/gi, ', ').replace(/<[^>]+>/g, '').trim()
+    return htmlStr.replace(/<\/?br\s*\/?>/gi, ', ').replace(/<[^>]+>/g, '').replace(/\s*,\s*/g, ', ').trim()
   }
 
   const openSipp = async (perkaraId: number) => {

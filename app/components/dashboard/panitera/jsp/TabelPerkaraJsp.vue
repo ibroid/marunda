@@ -46,7 +46,8 @@
           <tr>
             <th class="py-2.5 px-3 text-center font-semibold text-gray-600 dark:text-gray-300 w-12">No</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Nomor Perkara</th>
-            <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Para Pihak</th>
+            <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Majelis Hakim</th>
+            <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Panitera Sidang</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Tgl Putus</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Status Putusan</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Status Terakhir</th>
@@ -59,7 +60,8 @@
             <tr v-for="n in 5" :key="'skeleton-pbt-' + n" class="animate-pulse">
               <td class="py-3 px-3 text-center"><USkeleton class="h-4 w-4 mx-auto" /></td>
               <td class="py-3 px-3"><USkeleton class="h-4 w-32 mb-1" /><USkeleton class="h-3 w-20" /></td>
-              <td class="py-3 px-3"><USkeleton class="h-4 w-48" /></td>
+              <td class="py-3 px-3"><USkeleton class="h-4 w-36 mb-1" /><USkeleton class="h-3 w-24" /></td>
+              <td class="py-3 px-3"><USkeleton class="h-4 w-28" /></td>
               <td class="py-3 px-3"><USkeleton class="h-4 w-20" /></td>
               <td class="py-3 px-3"><USkeleton class="h-4 w-16 rounded-full" /></td>
               <td class="py-3 px-3"><USkeleton class="h-3.5 w-24" /></td>
@@ -77,13 +79,18 @@
               <td class="py-2.5 px-3 text-center text-gray-400 font-medium">
                 {{ (page - 1) * limit + idx + 1 }}
               </td>
-              <td class="py-2.5 px-3 font-semibold text-primary-600 dark:text-primary-400 whitespace-nowrap">
+              <td class="py-2.5 px-3 font-semibold text-primary-600 dark:text-primary-400 whitespace-nowrap" :title="cleanHtml(p.para_pihak)">
                 {{ p.nomor_perkara }}
                 <span class="block text-[11px] font-normal text-gray-500">{{ p.jenis_perkara_nama }}</span>
               </td>
-              <td class="py-2.5 px-3 text-gray-700 dark:text-gray-300 max-w-sm" :title="cleanHtml(p.para_pihak)">
-                <div class="line-clamp-2 text-[11px]">
-                  {{ cleanHtml(p.para_pihak) }}
+              <td class="py-2.5 px-3 text-gray-700 dark:text-gray-300 max-w-xs" :title="cleanHtml(p.majelis_hakim_nama)">
+                <div class="line-clamp-2 text-[11px] leading-tight">
+                  {{ cleanHtml(p.majelis_hakim_nama) || '-' }}
+                </div>
+              </td>
+              <td class="py-2.5 px-3 whitespace-nowrap">
+                <div class="text-[11px] font-medium text-gray-700 dark:text-gray-300 max-w-[160px] truncate" :title="p.panitera_pengganti_nama">
+                  {{ p.panitera_pengganti_nama || '-' }}
                 </div>
               </td>
               <td class="py-2.5 px-3 whitespace-nowrap">
@@ -112,7 +119,7 @@
               </td>
             </tr>
             <tr v-if="!data?.daftar?.length">
-              <td colspan="7" class="py-10 text-center text-gray-400 text-xs">
+              <td colspan="8" class="py-10 text-center text-gray-400 text-xs">
                 <UIcon name="i-heroicons-check-circle" class="w-8 h-8 mx-auto mb-2 text-green-500" />
                 <p class="font-medium text-gray-700 dark:text-gray-300">Tidak ada tunggakan pemberitahuan isi putusan (PBT).</p>
                 <p class="text-green-600 dark:text-green-400 mt-1">
@@ -131,7 +138,8 @@
             <th class="py-2.5 px-3 text-center font-semibold text-gray-600 dark:text-gray-300 w-12">No</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Nomor Perkara</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Tgl Daftar</th>
-            <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Para Pihak</th>
+            <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Majelis Hakim</th>
+            <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Panitera Sidang</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Status Putusan</th>
             <th class="py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-300">Proses Terakhir</th>
             <th class="py-2.5 px-3 text-center font-semibold text-gray-600 dark:text-gray-300 w-28">Aksi</th>
@@ -144,7 +152,8 @@
               <td class="py-3 px-3 text-center"><USkeleton class="h-4 w-4 mx-auto" /></td>
               <td class="py-3 px-3"><USkeleton class="h-4 w-32 mb-1" /><USkeleton class="h-3 w-20" /></td>
               <td class="py-3 px-3"><USkeleton class="h-4 w-20" /></td>
-              <td class="py-3 px-3"><USkeleton class="h-4 w-48" /></td>
+              <td class="py-3 px-3"><USkeleton class="h-4 w-36 mb-1" /><USkeleton class="h-3 w-24" /></td>
+              <td class="py-3 px-3"><USkeleton class="h-4 w-28" /></td>
               <td class="py-3 px-3"><USkeleton class="h-4 w-20 rounded-full" /></td>
               <td class="py-3 px-3"><USkeleton class="h-3.5 w-24" /></td>
               <td class="py-3 px-3 text-center"><USkeleton class="h-6 w-16 mx-auto rounded" /></td>
@@ -161,16 +170,21 @@
               <td class="py-2.5 px-3 text-center text-gray-400 font-medium">
                 {{ (page - 1) * limit + idx + 1 }}
               </td>
-              <td class="py-2.5 px-3 font-semibold text-primary-600 dark:text-primary-400 whitespace-nowrap">
+              <td class="py-2.5 px-3 font-semibold text-primary-600 dark:text-primary-400 whitespace-nowrap" :title="cleanHtml(p.para_pihak)">
                 {{ p.nomor_perkara }}
                 <span class="block text-[11px] font-normal text-gray-500">{{ p.jenis_perkara_nama }}</span>
               </td>
               <td class="py-2.5 px-3 whitespace-nowrap text-gray-600 dark:text-gray-300">
                 {{ formatDate(p.tanggal_pendaftaran) }}
               </td>
-              <td class="py-2.5 px-3 text-gray-700 dark:text-gray-300 max-w-sm" :title="cleanHtml(p.para_pihak)">
-                <div class="line-clamp-2 text-[11px]">
-                  {{ cleanHtml(p.para_pihak) }}
+              <td class="py-2.5 px-3 text-gray-700 dark:text-gray-300 max-w-xs" :title="cleanHtml(p.majelis_hakim_nama)">
+                <div class="line-clamp-2 text-[11px] leading-tight">
+                  {{ cleanHtml(p.majelis_hakim_nama) || '-' }}
+                </div>
+              </td>
+              <td class="py-2.5 px-3 whitespace-nowrap">
+                <div class="text-[11px] font-medium text-gray-700 dark:text-gray-300 max-w-[160px] truncate" :title="p.panitera_pengganti_nama">
+                  {{ p.panitera_pengganti_nama || '-' }}
                 </div>
               </td>
               <td class="py-2.5 px-3 whitespace-nowrap">
@@ -203,7 +217,7 @@
               </td>
             </tr>
             <tr v-if="!data?.daftar?.length">
-              <td colspan="7" class="py-10 text-center text-gray-400 text-xs">
+              <td colspan="8" class="py-10 text-center text-gray-400 text-xs">
                 Tidak ada data perkara yang ditugaskan untuk jurusita ini pada tahun {{ selectedYear }}.
               </td>
             </tr>

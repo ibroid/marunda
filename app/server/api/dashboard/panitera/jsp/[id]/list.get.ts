@@ -67,10 +67,13 @@ export default defineEventHandler(async (event) => {
             p.para_pihak,
             p.proses_terakhir_text,
             pp.tanggal_putusan,
-            pp.status_putusan_nama
+            pp.status_putusan_nama,
+            pt.majelis_hakim_nama,
+            COALESCE(pn.nama_gelar, SUBSTRING_INDEX(pt.panitera_pengganti_text, ': ', -1)) AS panitera_pengganti_nama
           FROM perkara p
           JOIN perkara_putusan pp ON p.perkara_id = pp.perkara_id
           LEFT JOIN perkara_penetapan pt ON p.perkara_id = pt.perkara_id
+          LEFT JOIN panitera_pn pn ON pn.id = pt.panitera_pengganti_id
           LEFT JOIN perkara_putusan_pemberitahuan_putusan pbt
             ON pbt.perkara_id = p.perkara_id
             AND pbt.pihak = 2
@@ -118,9 +121,12 @@ export default defineEventHandler(async (event) => {
             p.jenis_perkara_nama,
             p.para_pihak,
             p.proses_terakhir_text,
-            pp.tanggal_putusan
+            pp.tanggal_putusan,
+            pt.majelis_hakim_nama,
+            COALESCE(pn.nama_gelar, SUBSTRING_INDEX(pt.panitera_pengganti_text, ': ', -1)) AS panitera_pengganti_nama
           FROM perkara p
           JOIN perkara_penetapan pt ON p.perkara_id = pt.perkara_id
+          LEFT JOIN panitera_pn pn ON pn.id = pt.panitera_pengganti_id
           LEFT JOIN perkara_putusan pp ON p.perkara_id = pp.perkara_id
           WHERE pt.jurusita_id = ${jspId}
             AND p.tanggal_pendaftaran >= '${startDate}' AND p.tanggal_pendaftaran <= '${endDate}'
