@@ -6,6 +6,16 @@
           <UIcon name="i-heroicons-clock" class="w-4 h-4 text-rose-500" />
           Monitoring Usia Perkara (Aging Cases)
         </h3>
+        <UButton
+          size="2xs"
+          color="gray"
+          variant="ghost"
+          icon="i-heroicons-arrow-top-right-on-square"
+          title="Lihat semua daftar perkara usia > 3 bulan"
+          @click="openModalAging('all', 'Semua Perkara Usia > 3 Bulan', data?.aging?.totalTunggakan)"
+        >
+          Lihat Semua ({{ data?.aging?.totalTunggakan || 0 }})
+        </UButton>
       </div>
     </template>
 
@@ -24,47 +34,119 @@
       <!-- Real items -->
       <template v-else>
         <!-- 3 - 5 Bulan -->
-        <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-lg flex items-center justify-between">
+        <div
+          class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-lg flex items-center justify-between hover:bg-amber-100/60 dark:hover:bg-amber-950/50 transition-all cursor-pointer group"
+          title="Klik untuk melihat rincian perkara usia 3 - 5 bulan"
+          @click="openModalAging('3_5_bulan', 'Usia 3 - 5 Bulan (91-150 hari)', data?.aging?.usia3_5Bulan)"
+        >
           <div>
-            <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">Usia 3 - 5 Bulan (91-150 hari)</p>
+            <p class="text-xs font-semibold text-amber-800 dark:text-amber-300 group-hover:text-amber-900 dark:group-hover:text-amber-200 transition-colors">
+              Usia 3 - 5 Bulan (91-150 hari)
+            </p>
             <p class="text-[11px] text-amber-600 dark:text-amber-400">Perhatian penyelesaian sidang</p>
           </div>
-          <span class="text-lg font-bold text-amber-700 dark:text-amber-300">
-            {{ data?.aging?.usia3_5Bulan || 0 }}
-          </span>
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg font-bold text-amber-700 dark:text-amber-300">
+              {{ data?.aging?.usia3_5Bulan || 0 }}
+            </span>
+            <UButton
+              size="2xs"
+              color="amber"
+              variant="soft"
+              icon="i-heroicons-arrow-top-right-on-square"
+              title="Lihat rincian"
+              @click.stop="openModalAging('3_5_bulan', 'Usia 3 - 5 Bulan (91-150 hari)', data?.aging?.usia3_5Bulan)"
+            >
+              Detail
+            </UButton>
+          </div>
         </div>
 
         <!-- 5 - 6 Bulan (Batas SEMA) -->
-        <div class="p-3 bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900/50 rounded-lg flex items-center justify-between">
+        <div
+          class="p-3 bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900/50 rounded-lg flex items-center justify-between hover:bg-orange-100/60 dark:hover:bg-orange-950/50 transition-all cursor-pointer group"
+          title="Klik untuk melihat rincian perkara usia 5 - 6 bulan"
+          @click="openModalAging('5_6_bulan', 'Usia 5 - 6 Bulan (151-180 hari)', data?.aging?.usia5_6Bulan)"
+        >
           <div>
-            <p class="text-xs font-semibold text-orange-800 dark:text-orange-300">Usia 5 - 6 Bulan (151-180 hari)</p>
+            <p class="text-xs font-semibold text-orange-800 dark:text-orange-300 group-hover:text-orange-900 dark:group-hover:text-orange-200 transition-colors">
+              Usia 5 - 6 Bulan (151-180 hari)
+            </p>
             <p class="text-[11px] text-orange-600 dark:text-orange-400">Mendekati batas SEMA No. 2/2014 (5 bln)</p>
           </div>
-          <span class="text-lg font-bold text-orange-700 dark:text-orange-300">
-            {{ data?.aging?.usia5_6Bulan || 0 }}
-          </span>
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg font-bold text-orange-700 dark:text-orange-300">
+              {{ data?.aging?.usia5_6Bulan || 0 }}
+            </span>
+            <UButton
+              size="2xs"
+              color="orange"
+              variant="soft"
+              icon="i-heroicons-arrow-top-right-on-square"
+              title="Lihat rincian"
+              @click.stop="openModalAging('5_6_bulan', 'Usia 5 - 6 Bulan (151-180 hari)', data?.aging?.usia5_6Bulan)"
+            >
+              Detail
+            </UButton>
+          </div>
         </div>
 
         <!-- 6 - 12 Bulan -->
-        <div class="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg flex items-center justify-between">
+        <div
+          class="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg flex items-center justify-between hover:bg-red-100/60 dark:hover:bg-red-950/50 transition-all cursor-pointer group"
+          title="Klik untuk melihat rincian perkara usia 6 - 12 bulan"
+          @click="openModalAging('6_12_bulan', 'Usia 6 - 12 Bulan (181-365 hari)', data?.aging?.usia6_12Bulan)"
+        >
           <div>
-            <p class="text-xs font-semibold text-red-800 dark:text-red-300">Usia 6 - 12 Bulan (181-365 hari)</p>
+            <p class="text-xs font-semibold text-red-800 dark:text-red-300 group-hover:text-red-900 dark:group-hover:text-red-200 transition-colors">
+              Usia 6 - 12 Bulan (181-365 hari)
+            </p>
             <p class="text-[11px] text-red-600 dark:text-red-400">Melewati standar penanganan perkara</p>
           </div>
-          <span class="text-lg font-bold text-red-700 dark:text-red-300">
-            {{ data?.aging?.usia6_12Bulan || 0 }}
-          </span>
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg font-bold text-red-700 dark:text-red-300">
+              {{ data?.aging?.usia6_12Bulan || 0 }}
+            </span>
+            <UButton
+              size="2xs"
+              color="red"
+              variant="soft"
+              icon="i-heroicons-arrow-top-right-on-square"
+              title="Lihat rincian"
+              @click.stop="openModalAging('6_12_bulan', 'Usia 6 - 12 Bulan (181-365 hari)', data?.aging?.usia6_12Bulan)"
+            >
+              Detail
+            </UButton>
+          </div>
         </div>
 
         <!-- Diatas 1 Tahun -->
-        <div class="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-lg flex items-center justify-between">
+        <div
+          class="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-lg flex items-center justify-between hover:bg-rose-100/60 dark:hover:bg-rose-950/50 transition-all cursor-pointer group"
+          title="Klik untuk melihat rincian perkara usia > 1 tahun"
+          @click="openModalAging('diatas_1_tahun', 'Usia > 1 Tahun (> 365 hari)', data?.aging?.usiaDiatas1Tahun)"
+        >
           <div>
-            <p class="text-xs font-semibold text-rose-800 dark:text-rose-300">Usia &gt; 1 Tahun (&gt; 365 hari)</p>
+            <p class="text-xs font-semibold text-rose-800 dark:text-rose-300 group-hover:text-rose-900 dark:group-hover:text-rose-200 transition-colors">
+              Usia &gt; 1 Tahun (&gt; 365 hari)
+            </p>
             <p class="text-[11px] text-rose-600 dark:text-rose-400">Tunggakan perkara kronis</p>
           </div>
-          <span class="text-lg font-bold text-rose-700 dark:text-rose-300">
-            {{ data?.aging?.usiaDiatas1Tahun || 0 }}
-          </span>
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg font-bold text-rose-700 dark:text-rose-300">
+              {{ data?.aging?.usiaDiatas1Tahun || 0 }}
+            </span>
+            <UButton
+              size="2xs"
+              color="rose"
+              variant="soft"
+              icon="i-heroicons-arrow-top-right-on-square"
+              title="Lihat rincian"
+              @click.stop="openModalAging('diatas_1_tahun', 'Usia > 1 Tahun (> 365 hari)', data?.aging?.usiaDiatas1Tahun)"
+            >
+              Detail
+            </UButton>
+          </div>
         </div>
       </template>
     </div>
@@ -74,11 +156,14 @@
         * Standar penyelesaian perkara tingkat pertama menurut SEMA No. 2 Tahun 2014 maksimal 5 bulan.
       </div>
     </template>
+
+    <!-- Modal Detail Aging Cases -->
+    <DashboardKetuaModalDetailAging />
   </UCard>
 </template>
 
 <script setup>
-const { selectedYear, sharedAging, refreshSignal } = useDashboardKetua()
+const { selectedYear, sharedAging, refreshSignal, openModalAging } = useDashboardKetua()
 
 const { data, pending, refresh } = useLazyFetch('/api/dashboard/ketua/aging', {
   server: false,

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Skeleton Loading -->
+    <!-- 3 Kategori Kartu Monitoring Akta Cerai -->
     <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div v-for="i in 3" :key="i" class="border rounded-xl p-4 bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-gray-300 dark:border-l-gray-700 space-y-2">
         <USkeleton class="h-3.5 w-32" />
@@ -8,8 +8,6 @@
         <USkeleton class="h-3 w-44" />
       </div>
     </div>
-
-    <!-- Real Content -->
     <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- 1. Cerai Gugat: Belum Terbit Akta Cerai -->
       <div
