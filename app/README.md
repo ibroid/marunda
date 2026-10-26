@@ -69,31 +69,31 @@ Aplikasi terpadu modern penanganan perkara Pengadilan Agama hasil rewrite dan un
 
 ---
 
-## 💻 Cara Menjalankan Project
+## 💻 Panduan Instalasi & Deployment
 
-### 1. Masuk ke direktori app
-```bash
-cd D:\rewrite-project\app
-```
+Untuk panduan lengkap instalasi menggunakan **Docker / Docker Compose** maupun mode **Standalone (Production & PM2)**, silakan lihat file dokumentasi utama di root repository:
 
-### 2. Install dependencies
-```bash
-npm install
-```
+👉 **[Lihat Panduan Instalasi Lengkap (README.md)](../README.md)**
 
-### 3. Generate Prisma Client
-```bash
-npx prisma generate
-```
-
-### 4. Pastikan MySQL SIPP Berjalan
-Pastikan service MySQL / XAMPP / MariaDB aktif dengan database `sipppaju` pada:
-```env
-DATABASE_URL="mysql://root:@localhost:3306/sipppaju"
-```
-
-### 5. Jalankan Server Development
-```bash
-npm run dev
-```
-Aplikasi dapat diakses melalui browser di `http://localhost:3000`.
+### Ringkasan Menjalankan Cepat (Development Lokal):
+1. Masuk ke direktori `app`:
+   ```bash
+   cd app
+   ```
+2. Salin environment & konfigurasi koneksi database:
+   ```bash
+   cp .env.example .env
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Generate Prisma Client:
+   ```bash
+   npx prisma generate
+   ```
+5. Jalankan server development:
+   ```bash
+   npm run dev
+   ```
+   Aplikasi dapat diakses melalui browser di `http://localhost:3000`.
