@@ -45,6 +45,8 @@ export default defineEventHandler(async (event) => {
     const sumRes = await prisma.$queryRawUnsafe<any[]>(`
       SELECT
         COUNT(p.perkara_id) AS total_beban,
+        SUM(CASE WHEN sm.status = '1' THEN 1 ELSE 0 END) AS smart_otomatis,
+        SUM(CASE WHEN sm.status IS NOT NULL AND sm.status != '1' THEN 1 ELSE 0 END) AS tinjau_ulang,
         SUM(CASE WHEN pp.tanggal_putusan IS NOT NULL THEN 1 ELSE 0 END) AS total_putus,
         SUM(CASE WHEN pp.tanggal_putusan IS NULL THEN 1 ELSE 0 END) AS total_sisa,
         SUM(CASE WHEN pp.tanggal_putusan IS NOT NULL AND pp.tanggal_minutasi IS NOT NULL AND pp.tanggal_minutasi != '0000-00-00' AND pp.tanggal_minutasi != '' THEN 1 ELSE 0 END) AS sudah_minutasi,
@@ -55,6 +57,7 @@ export default defineEventHandler(async (event) => {
         SUM(CASE WHEN pp.tanggal_putusan IS NULL AND DATEDIFF(CURDATE(), p.tanggal_pendaftaran) > 90 THEN 1 ELSE 0 END) AS total_tunggakan
       FROM perkara_penetapan pt
       JOIN perkara p ON p.perkara_id = pt.perkara_id
+      LEFT JOIN perkara_smartmajelis sm ON sm.perkara_id = pt.perkara_id
       LEFT JOIN perkara_putusan pp ON pp.perkara_id = p.perkara_id
       WHERE pt.penetapan_majelis_hakim >= '${startDate}' AND pt.penetapan_majelis_hakim <= '${endDate}'
         AND ${hakimCondition}
@@ -62,6 +65,8 @@ export default defineEventHandler(async (event) => {
 
     const row = sumRes[0] || {}
     const totalBeban = Number(row.total_beban || 0)
+    const smartOtomatis = Number(row.smart_otomatis || 0)
+    const tinjauUlang = Number(row.tinjau_ulang || 0)
     const totalPutus = Number(row.total_putus || 0)
     const totalSisa = Number(row.total_sisa || 0)
     const sudahMinutasi = Number(row.sudah_minutasi || 0)
@@ -76,6 +81,8 @@ export default defineEventHandler(async (event) => {
     const rasioPutus = totalBeban > 0 ? Number(((totalPutus / totalBeban) * 100).toFixed(1)) : 0
     const rasioMinutasi = totalPutus > 0 ? Number(((sudahMinutasi / totalPutus) * 100).toFixed(1)) : 100
     const rasioEdoc = totalPutus > 0 ? Number(((sudahEdoc / totalPutus) * 100).toFixed(1)) : 100
+    const persentaseSmartOtomatis = totalBeban > 0 ? Number(((smartOtomatis / totalBeban) * 100).toFixed(1)) : 0
+    const persentaseTinjauUlang = totalBeban > 0 ? Number(((tinjauUlang / totalBeban) * 100).toFixed(1)) : 0
 
     return serializeBigInt({
       success: true,
@@ -91,6 +98,10 @@ export default defineEventHandler(async (event) => {
       },
       summary: {
         totalBeban,
+        smartOtomatis,
+        tinjauUlang,
+        persentaseSmartOtomatis,
+        persentaseTinjauUlang,
         totalPutus,
         totalSisa,
         rasioPutus,

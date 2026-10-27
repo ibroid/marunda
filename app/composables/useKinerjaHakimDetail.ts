@@ -21,7 +21,7 @@ export const useKinerjaHakimDetail = () => {
     selectedYear.value = Number(route.query.year)
   }
 
-  // Filter tab rincian perkara: semua | aktif | putus | belum_minutasi | tunggakan | belum_edoc
+  // Filter tab rincian perkara: semua | smart_otomatis | tinjau_ulang | aktif | putus | belum_minutasi | tunggakan | belum_edoc
   const activeTab = useState<string>('kinerja_hakim_tab', () => (route.query.tab as string) || 'semua')
 
   // Filter peran majelis: ketua (default) | semua (ketua & anggota)

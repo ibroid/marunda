@@ -38,6 +38,7 @@
             <th class="py-3 px-3.5 w-12 text-center font-semibold">No</th>
             <th class="py-3 px-3 font-semibold min-w-[180px]">Nomor Perkara & Jenis</th>
             <th class="py-3 px-3 font-semibold min-w-[200px]">Para Pihak</th>
+            <th class="py-3 px-3 font-semibold min-w-[130px]">Smart Majelis</th>
             <th class="py-3 px-3 font-semibold min-w-[120px]">Tgl Daftar / Usia</th>
             <th class="py-3 px-3 font-semibold min-w-[170px]">Panitera Pengganti</th>
             <th class="py-3 px-3 font-semibold min-w-[130px]">Status Putusan</th>
@@ -58,6 +59,10 @@
             <td class="py-3 px-3 space-y-1">
               <USkeleton class="h-3 w-40" />
               <USkeleton class="h-3 w-32" />
+            </td>
+            <td class="py-3 px-3 space-y-1">
+              <USkeleton class="h-4 w-24" />
+              <USkeleton class="h-3 w-16" />
             </td>
             <td class="py-3 px-3 space-y-1">
               <USkeleton class="h-3 w-20" />
@@ -107,6 +112,29 @@
               </div>
               <div class="text-[10px] text-gray-400 mt-1 truncate">
                 Proses: {{ item.proses_terakhir_text || '-' }}
+              </div>
+            </td>
+
+            <!-- Smart Majelis Status -->
+            <td class="py-3 px-3">
+              <div v-if="item.smart_type === 'otomatis'" class="flex flex-col gap-0.5">
+                <UBadge color="emerald" variant="subtle" size="xs" class="w-fit">
+                  <UIcon name="i-heroicons-cpu-chip" class="w-3 h-3 mr-1" />
+                  Otomatis
+                </UBadge>
+                <span class="text-[10px] text-gray-400">Smart Majelis</span>
+              </div>
+              <div v-else-if="item.smart_type === 'tinjau_ulang'" class="flex flex-col gap-0.5">
+                <UBadge color="amber" variant="subtle" size="xs" class="w-fit">
+                  <UIcon name="i-heroicons-arrow-path" class="w-3 h-3 mr-1" />
+                  Tinjau Ulang
+                </UBadge>
+                <span class="text-[10px] text-amber-600 dark:text-amber-400 truncate max-w-[120px]" :title="item.smart_keterangan || 'Penyesuaian Manual'">
+                  {{ item.smart_keterangan || 'Manual' }}
+                </span>
+              </div>
+              <div v-else>
+                <span class="text-xs text-gray-400">-</span>
               </div>
             </td>
 
@@ -181,7 +209,7 @@
 
           <!-- Empty State -->
           <tr v-if="!listItems.length">
-            <td colspan="7" class="py-12 text-center text-gray-400">
+            <td colspan="8" class="py-12 text-center text-gray-400">
               <UIcon name="i-heroicons-document-magnifying-glass" class="w-8 h-8 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
               <p class="font-medium text-sm">Tidak ada data perkara untuk filter ini</p>
               <p class="text-xs text-gray-400 mt-1">Coba ubah kata kunci pencarian atau tab filter</p>
@@ -235,6 +263,8 @@ const openSipp = (perkaraId) => baseOpenSipp(perkaraId, toast)
 
 const tabs = [
   { key: 'semua', label: 'Semua Perkara' },
+  { key: 'smart_otomatis', label: 'Smart Majelis (Otomatis)' },
+  { key: 'tinjau_ulang', label: 'Tinjau Ulang' },
   { key: 'aktif', label: 'Sisa / Berjalan' },
   { key: 'putus', label: 'Sudah Putus' },
   { key: 'belum_minutasi', label: 'Belum Minutasi' },

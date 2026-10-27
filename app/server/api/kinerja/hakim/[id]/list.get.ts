@@ -34,6 +34,10 @@ export default defineEventHandler(async (event) => {
     tabCondition = 'AND pp.tanggal_putusan IS NULL'
   } else if (tab === 'putus') {
     tabCondition = 'AND pp.tanggal_putusan IS NOT NULL'
+  } else if (tab === 'smart_otomatis') {
+    tabCondition = "AND sm.status = '1'"
+  } else if (tab === 'tinjau_ulang') {
+    tabCondition = "AND sm.status IS NOT NULL AND sm.status != '1'"
   } else if (tab === 'belum_minutasi') {
     tabCondition = "AND pp.tanggal_putusan IS NOT NULL AND (pp.tanggal_minutasi IS NULL OR pp.tanggal_minutasi = '0000-00-00' OR pp.tanggal_minutasi = '')"
   } else if (tab === 'tunggakan') {
@@ -55,6 +59,7 @@ export default defineEventHandler(async (event) => {
         SELECT COUNT(p.perkara_id) AS total
         FROM perkara_penetapan pt
         JOIN perkara p ON p.perkara_id = pt.perkara_id
+        LEFT JOIN perkara_smartmajelis sm ON sm.perkara_id = pt.perkara_id
         LEFT JOIN perkara_putusan pp ON pp.perkara_id = p.perkara_id
         WHERE pt.penetapan_majelis_hakim >= '${startDate}' AND pt.penetapan_majelis_hakim <= '${endDate}'
           AND ${hakimCondition}
@@ -74,9 +79,12 @@ export default defineEventHandler(async (event) => {
           pp.amar_putusan_dok,
           pt.majelis_hakim_nama,
           pt.panitera_pengganti_text,
+          sm.status AS smart_status,
+          sm.keterangan AS smart_keterangan,
           DATEDIFF(COALESCE(pp.tanggal_putusan, CURDATE()), p.tanggal_pendaftaran) AS usia_hari
         FROM perkara_penetapan pt
         JOIN perkara p ON p.perkara_id = pt.perkara_id
+        LEFT JOIN perkara_smartmajelis sm ON sm.perkara_id = pt.perkara_id
         LEFT JOIN perkara_putusan pp ON pp.perkara_id = p.perkara_id
         WHERE pt.penetapan_majelis_hakim >= '${startDate}' AND pt.penetapan_majelis_hakim <= '${endDate}'
           AND ${hakimCondition}
@@ -96,6 +104,13 @@ export default defineEventHandler(async (event) => {
       const isEdoc = Boolean(item.amar_putusan_dok && item.amar_putusan_dok !== '')
       const usiaHari = Number(item.usia_hari || 0)
 
+      let smartType = 'none'
+      if (item.smart_status === '1') {
+        smartType = 'otomatis'
+      } else if (item.smart_status && item.smart_status !== '1') {
+        smartType = 'tinjau_ulang'
+      }
+
       return {
         perkara_id: Number(item.perkara_id),
         nomor_perkara: item.nomor_perkara || '-',
@@ -108,6 +123,9 @@ export default defineEventHandler(async (event) => {
         amar_putusan_dok: item.amar_putusan_dok,
         majelis_hakim_nama: item.majelis_hakim_nama || '-',
         panitera_pengganti_text: item.panitera_pengganti_text || '-',
+        smart_status: item.smart_status || null,
+        smart_type: smartType,
+        smart_keterangan: item.smart_keterangan || null,
         usia_hari: usiaHari,
         is_putus: isPutus,
         is_minutasi: isMinutasi,
