@@ -1,3 +1,5 @@
+import { usePageLoading } from '~/composables/usePageLoading'
+
 export default defineNuxtPlugin((nuxtApp) => {
   const router = useRouter()
   const { startLoading, stopLoading } = usePageLoading()

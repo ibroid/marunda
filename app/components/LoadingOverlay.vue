@@ -69,7 +69,9 @@
   </ClientOnly>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { usePageLoading } from '~/composables/usePageLoading'
+
 const { isLoading, targetTitle, stopLoading } = usePageLoading()
 </script>
 
