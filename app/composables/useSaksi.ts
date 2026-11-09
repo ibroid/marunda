@@ -79,6 +79,59 @@ export const useSaksi = () => {
     })
   }
 
+  const formatDayDate = (dateStr?: string | null) => {
+    if (!dateStr || dateStr === '0000-00-00') return '-'
+    try {
+      const parts = String(dateStr).split(/[-T ]/)
+      if (parts.length >= 3) {
+        const year = parseInt(parts[0], 10)
+        const month = parseInt(parts[1], 10) - 1
+        const day = parseInt(parts[2], 10)
+        if (!isNaN(year) && !isNaN(month) && !isNaN(day) && year > 1900) {
+          const d = new Date(year, month, day)
+          return d.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          })
+        }
+      }
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return dateStr
+      return d.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    } catch {
+      return dateStr || '-'
+    }
+  }
+
+  const calculateAge = (dateStr?: string | null): number | null => {
+    if (!dateStr || dateStr === '0000-00-00') return null
+    try {
+      const parts = String(dateStr).split(/[-T ]/)
+      if (parts.length < 3) return null
+      const birthYear = parseInt(parts[0], 10)
+      const birthMonth = parseInt(parts[1], 10) - 1
+      const birthDay = parseInt(parts[2], 10)
+      if (isNaN(birthYear) || isNaN(birthMonth) || isNaN(birthDay) || birthYear <= 1900) return null
+
+      const today = new Date()
+      let age = today.getFullYear() - birthYear
+      const monthDiff = today.getMonth() - birthMonth
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDay)) {
+        age--
+      }
+      return age >= 0 ? age : null
+    } catch {
+      return null
+    }
+  }
+
   return {
     searchQuery,
     searchBy,
@@ -101,6 +154,8 @@ export const useSaksi = () => {
     getSaksiPihakLabel,
     getJenisSaksiLabel,
     formatDate,
-    formatDateTime
+    formatDateTime,
+    formatDayDate,
+    calculateAge
   }
 }

@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
         ph.nomor_indentitas,
         ph.tempat_lahir,
         DATE_FORMAT(ph.tanggal_lahir, '%Y-%m-%d') AS tanggal_lahir,
+        TIMESTAMPDIFF(YEAR, ph.tanggal_lahir, CURDATE()) AS umur,
         ph.jenis_kelamin,
         ph.agama_nama,
         ph.pekerjaan,
@@ -70,6 +71,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const saksi = saksiRows[0]
+    if (saksi && saksi.umur !== null && saksi.umur !== undefined) {
+      saksi.umur = Number(saksi.umur)
+    }
     const pihakId = saksi.pihak_id ? Number(saksi.pihak_id) : null
 
     // 2. Fetch Keterangan Saksi / Transkrip BAP dan Riwayat Perkara Lain secara paralel

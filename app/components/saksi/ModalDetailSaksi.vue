@@ -25,6 +25,15 @@
                   {{ detailData?.saksi?.saksi_pihak_ke === 1 ? 'Saksi Penggugat/Pemohon' : (detailData?.saksi?.saksi_pihak_ke === 2 ? 'Saksi Tergugat/Termohon' : 'Saksi') }}
                 </UBadge>
                 <UBadge
+                  v-if="saksiUmur !== null"
+                  color="amber"
+                  variant="subtle"
+                  size="xs"
+                  class="font-medium"
+                >
+                  Usia: {{ saksiUmur }} Tahun
+                </UBadge>
+                <UBadge
                   v-if="detailData?.saksi?.keterangan_saksi"
                   color="gray"
                   variant="soft"
@@ -69,48 +78,110 @@
         <UTabs :items="tabItems" class="w-full">
           <!-- Tab 1: Profil & Identitas Saksi -->
           <template #profil>
-            <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
-              <div>
-                <span class="text-gray-400 block mb-0.5">Nama Lengkap</span>
-                <span class="font-semibold text-gray-900 dark:text-white text-sm">
-                  {{ detailData.saksi.nama }}
-                </span>
+            <div class="pt-4 space-y-4 text-xs">
+              <!-- Highlight Card Kelahiran & Usia Saksi -->
+              <div class="p-3.5 rounded-lg bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-gray-50/50 dark:from-amber-950/30 dark:via-amber-950/15 dark:to-gray-800/40 border border-amber-200/80 dark:border-amber-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <UIcon name="i-heroicons-calendar-days" class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold block">Hari & Tanggal Lahir</span>
+                    <span class="font-bold text-gray-900 dark:text-white text-xs sm:text-sm">
+                      {{ formatDayDate(detailData.saksi.tanggal_lahir) }}
+                    </span>
+                    <span v-if="detailData.saksi.tempat_lahir" class="text-xs text-gray-500 dark:text-gray-400 block mt-0.5">
+                      Tempat Lahir: {{ detailData.saksi.tempat_lahir }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-start sm:self-center pl-12 sm:pl-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-amber-200/50 dark:border-amber-900/40">
+                  <div class="sm:text-right">
+                    <span class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold block">Umur / Usia</span>
+                    <span class="font-bold text-amber-600 dark:text-amber-400 text-sm sm:text-base">
+                      {{ saksiUmur !== null ? `${saksiUmur} Tahun` : '-' }}
+                    </span>
+                  </div>
+                  <UBadge
+                    v-if="saksiUmur !== null"
+                    color="amber"
+                    variant="subtle"
+                    size="sm"
+                    class="font-semibold"
+                  >
+                    {{ saksiUmur }} th
+                  </UBadge>
+                </div>
               </div>
 
-              <div>
-                <span class="text-gray-400 block mb-0.5">Nomor Identitas (NIK / KTP)</span>
-                <span class="font-mono font-medium text-gray-800 dark:text-gray-200">
-                  {{ detailData.saksi.nomor_indentitas || 'Tidak Tercatat' }}
-                </span>
-              </div>
+              <!-- Grid Detail Profil Identitas -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Nama Lengkap</span>
+                  <span class="font-semibold text-gray-900 dark:text-white text-sm">
+                    {{ detailData.saksi.nama }}
+                  </span>
+                </div>
 
-              <div>
-                <span class="text-gray-400 block mb-0.5">Jenis Kelamin</span>
-                <span class="text-gray-800 dark:text-gray-200">
-                  {{ detailData.saksi.jenis_kelamin === 'L' ? 'Laki-laki' : (detailData.saksi.jenis_kelamin === 'P' ? 'Perempuan' : '-') }}
-                </span>
-              </div>
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Nomor Identitas (NIK / KTP)</span>
+                  <span class="font-mono font-medium text-gray-800 dark:text-gray-200">
+                    {{ detailData.saksi.nomor_indentitas || 'Tidak Tercatat' }}
+                  </span>
+                </div>
 
-              <div>
-                <span class="text-gray-400 block mb-0.5">Tempat & Tanggal Lahir</span>
-                <span class="text-gray-800 dark:text-gray-200">
-                  {{ detailData.saksi.tempat_lahir || '-' }}, {{ formatDate(detailData.saksi.tanggal_lahir) }}
-                </span>
-              </div>
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Jenis Kelamin</span>
+                  <span class="text-gray-800 dark:text-gray-200">
+                    {{ detailData.saksi.jenis_kelamin === 'L' ? 'Laki-laki' : (detailData.saksi.jenis_kelamin === 'P' ? 'Perempuan' : '-') }}
+                  </span>
+                </div>
 
-              <div>
-                <span class="text-gray-400 block mb-0.5">Agama</span>
-                <span class="text-gray-800 dark:text-gray-200">
-                  {{ detailData.saksi.agama_nama || '-' }}
-                </span>
-              </div>
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Umur / Usia</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">
+                      {{ saksiUmur !== null ? `${saksiUmur} Tahun` : '-' }}
+                    </span>
+                    <UBadge
+                      v-if="saksiUmur !== null"
+                      color="amber"
+                      variant="subtle"
+                      size="xs"
+                    >
+                      {{ saksiUmur }} th
+                    </UBadge>
+                  </div>
+                </div>
 
-              <div>
-                <span class="text-gray-400 block mb-0.5">Status Perkawinan</span>
-                <span class="text-gray-800 dark:text-gray-200">
-                  {{ detailData.saksi.status_kawin_text || '-' }}
-                </span>
-              </div>
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Tempat Lahir</span>
+                  <span class="text-gray-800 dark:text-gray-200">
+                    {{ detailData.saksi.tempat_lahir || '-' }}
+                  </span>
+                </div>
+
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Hari & Tanggal Lahir</span>
+                  <span class="text-gray-800 dark:text-gray-200 font-medium">
+                    {{ formatDayDate(detailData.saksi.tanggal_lahir) }}
+                  </span>
+                </div>
+
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Agama</span>
+                  <span class="text-gray-800 dark:text-gray-200">
+                    {{ detailData.saksi.agama_nama || '-' }}
+                  </span>
+                </div>
+
+                <div>
+                  <span class="text-gray-400 block mb-0.5">Status Perkawinan</span>
+                  <span class="text-gray-800 dark:text-gray-200">
+                    {{ detailData.saksi.status_kawin_text || '-' }}
+                  </span>
+                </div>
 
               <div>
                 <span class="text-gray-400 block mb-0.5">Pekerjaan</span>
@@ -368,7 +439,9 @@ const {
   selectedSaksiId,
   isDetailModalOpen,
   closeDetail,
-  formatDate
+  formatDate,
+  formatDayDate,
+  calculateAge
 } = useSaksi()
 
 // Fetch detail saksi hanya saat modal terbuka dan ID saksi ada
@@ -384,6 +457,15 @@ const { data, pending } = useLazyFetch(
 
 const isLoading = computed(() => pending.value || !data.value)
 const detailData = computed(() => data.value?.data || null)
+
+// Umur saksi: gunakan kalkulasi dari database jika ada, atau fallback kalkulasi via tanggal_lahir
+const saksiUmur = computed(() => {
+  const dbUmur = detailData.value?.saksi?.umur
+  if (dbUmur !== undefined && dbUmur !== null && dbUmur !== '' && !isNaN(Number(dbUmur))) {
+    return Number(dbUmur)
+  }
+  return calculateAge(detailData.value?.saksi?.tanggal_lahir)
+})
 
 const tabItems = computed(() => [
   {
